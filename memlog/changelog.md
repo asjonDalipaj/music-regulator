@@ -1,5 +1,42 @@
 # Changelog - Real-Time Music Regulator
 
+## [0.4.0] - 2025-06-12
+
+### Added
+- **Portfolio Foundation** (Phase 4 Week 1 Complete):
+  - Next.js 14 with TypeScript initialized in `portfolio/` directory
+  - Framer Motion installed for smooth animations
+  - Tailwind CSS configured with Renaissance-inspired custom color palette
+  - Google Fonts integrated: Playfair Display (headings) + Inter (body text)
+  - `Header.tsx` component with sticky navigation and LinkedIn integration
+  - `Footer.tsx` component with social links, quick navigation, and metadata
+  - `Hero.tsx` component with animated poetry carousel (3 original haiku poems)
+  - Main page structure with placeholder sections (About, Projects, Skills, Contact)
+
+### Design System
+- **Renaissance Color Palette**:
+  - Burgundy (#6b2737) - Primary/Accent
+  - Gold (#c9a961) - Secondary/Highlights  
+  - Sage (#8a9a7b) - Tertiary/Accents
+  - Cream (#f5f1e8) - Background
+  - Charcoal (#2d2d2d) - Text
+- **Typography**: Playfair Display for elegant headings, Inter for clean body text
+- **Animations**: Framer Motion for entrance animations, hover effects, and poetry transitions
+- **Custom Tailwind Extensions**: Animation keyframes, color system, font families
+
+### Poetry Integration
+- Three original haiku poems rotating on 8-second intervals
+- Smooth fade transitions between poems with staggered line animations
+- Interactive indicators for manual poem selection
+- Themes: Creative Engineering, Transformation Journey, Music Therapy Vision
+
+### Technical Implementation
+- Server/Client component separation for optimal Next.js performance
+- Responsive design with mobile-first approach
+- Custom scrollbar styling matching color palette
+- Scroll-triggered header background blur effect
+- Development server tested and verified at http://localhost:3000
+
 ## [0.3.0] - 2025-06-12
 
 ### Added

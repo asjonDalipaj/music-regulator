@@ -1,0 +1,81 @@
+@import "tailwindcss";
+
+:root {
+  /* Renaissance-inspired color palette */
+  --burgundy: #6b2737;
+  --burgundy-light: #8b3a4f;
+  --burgundy-dark: #4a1a26;
+  
+  --gold: #c9a961;
+  --gold-light: #e6c88a;
+  --gold-dark: #a48840;
+  
+  --sage: #8a9a7b;
+  --sage-light: #a8b89d;
+  --sage-dark: #6b7a5d;
+  
+  --cream: #f5f1e8;
+  --cream-dark: #e8e0d0;
+  
+  --charcoal: #2d2d2d;
+  --charcoal-light: #4a4a4a;
+  
+  /* Semantic colors */
+  --background: var(--cream);
+  --foreground: var(--charcoal);
+  --accent: var(--burgundy);
+  --accent-light: var(--burgundy-light);
+  --secondary: var(--gold);
+  --tertiary: var(--sage);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-accent: var(--accent);
+  --color-accent-light: var(--accent-light);
+  --color-secondary: var(--secondary);
+  --color-tertiary: var(--tertiary);
+  --color-burgundy: var(--burgundy);
+  --color-gold: var(--gold);
+  --color-sage: var(--sage);
+  --color-cream: var(--cream);
+  --color-charcoal: var(--charcoal);
+  --font-heading: var(--font-playfair);
+  --font-body: var(--font-inter);
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-inter), system-ui, -apple-system, sans-serif;
+  overflow-x: hidden;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-playfair), serif;
+  font-weight: 700;
+}
+
+/* Smooth scrolling */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--cream-dark);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--burgundy);
+  border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--burgundy-light);
+}
