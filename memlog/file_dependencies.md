@@ -100,15 +100,47 @@
 
 ---
 
-## Planned Additions (Phase 2+)
+## AI/ML Layer (Phase 2 - Completed v0.3.0)
 
-### AI/ML Layer
-```
-src/ai/
-├── PlaylistRecommender.ts     # Deps: BiofeedbackSimulator, EmotionRecognition
-├── ReinforcementLearning.ts   # Deps: AdaptiveMusicEngine
-└── PersonalizationEngine.ts   # Deps: All of above
-```
+### `src/ai/PlaylistRecommender.ts`
+- **Type**: TypeScript module
+- **Dependencies**:
+  - Internal: `../simulators/BiofeedbackSimulator`, `../simulators/EmotionRecognition`, `../music/AdaptiveMusicEngine`
+- **Provides**: Smart music recommendation system with emotion-based filtering
+- **Exports**:
+  - `PlaylistRecommender`
+  - `MusicTrack` (interface)
+  - `RecommendationCriteria` (interface)
+  - `TrackScore` (interface)
+- **Size**: ~390 lines ✅
+
+### `src/ai/ReinforcementLearning.ts`
+- **Type**: TypeScript module
+- **Dependencies**:
+  - Internal: `../simulators/BiofeedbackSimulator`, `../music/AdaptiveMusicEngine`
+- **Provides**: Q-learning optimization for music parameters
+- **Exports**:
+  - `MusicRLAgent`
+  - `RLState` (interface)
+  - `RLAction` (interface)
+  - `Experience` (interface)
+- **Size**: ~350 lines ✅
+
+### `src/ai/PersonalizationEngine.ts`
+- **Type**: TypeScript module
+- **Dependencies**:
+  - Internal: `../simulators/BiofeedbackSimulator`, `../simulators/EmotionRecognition`, `../music/AdaptiveMusicEngine`
+- **Provides**: User profile management and adaptive algorithm selection
+- **Exports**:
+  - `PersonalizationEngine`
+  - `UserProfile` (interface)
+  - `TherapeuticSession` (interface)
+  - `AlgorithmRecommendation` (interface)
+- **Size**: ~380 lines ✅
+
+---
+
+## Planned Additions (Phase 3+)
 
 ### Component Layer
 ```
@@ -165,5 +197,5 @@ portfolio/
 ---
 
 **Last Updated**: 2025-06-12  
-**Version**: 0.2.0  
-**Total Modules**: 4 (3 TypeScript + 1 JSON)
+**Version**: 0.3.0  
+**Total Modules**: 7 (6 TypeScript + 1 JSON)

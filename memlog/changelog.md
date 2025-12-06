@@ -1,5 +1,38 @@
 # Changelog - Real-Time Music Regulator
 
+## [0.3.0] - 2025-06-12
+
+### Added
+- **AI/ML Simulation Layer** (Phase 2 Complete):
+  - `PlaylistRecommender.ts` - Smart music selection system
+    - Emotion-based track filtering (arousal-valence mapping)
+    - Therapeutic goal alignment with evidence-based recommendations
+    - User preference learning with collaborative filtering simulation
+    - Multi-criteria scoring (emotion fit, goal alignment, freshness)
+  - `ReinforcementLearning.ts` - Q-learning optimization engine
+    - Q-learning algorithm for music parameter optimization
+    - State-action-reward framework for biofeedback improvement
+    - Epsilon-greedy exploration strategy
+    - Experience replay for stable learning
+  - `PersonalizationEngine.ts` - User profile management system
+    - Dynamic user profile creation and tracking
+    - Baseline metrics calculation with exponential moving average
+    - Therapeutic session recording and effectiveness scoring
+    - Algorithm recommendation based on historical performance
+    - User insights and improvement trend analysis
+
+### Technical Implementation
+- Complete TypeScript type safety across AI/ML modules
+- Integration with existing biofeedback and emotion recognition systems
+- Modular design with clear interfaces between components
+- All files maintain <400 line limit (per project rules)
+
+### Clinical Intelligence
+- Personalized algorithm selection based on user response patterns
+- Adaptive learning from session outcomes
+- Context-aware music recommendations
+- Historical effectiveness tracking for optimization
+
 ## [0.2.0] - 2025-06-12
 
 ### Added
