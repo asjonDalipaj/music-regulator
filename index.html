@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Adaptive Music Regulator (DTx Demo)</title>
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Load React Libraries -->
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <!-- Load Babel for JSX support -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    
+    <style>
+        /* Custom styling for the slider track */
+        input[type=range]::-webkit-slider-runnable-track {
+            background: linear-gradient(to right, #10b981, #f59e0b, #ef4444);
+            height: 8px;
+            border-radius: 4px;
+        }
+        input[type=range]::-moz-range-track {
+            background: linear-gradient(to right, #10b981, #f59e0b, #ef4444);
+            height: 8px;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 antialiased">
+
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect, useRef } = React;
+
+        // === CRITICAL FIX: INLINE MOCK TONE OBJECT ===
+        // This object mimics the key Tone.js functions (Synth, Loop, Transport) 
+        // to ensure the adaptive logic runs without external script errors.
+        const MockTone = {
+            Transport: {
+                bpm: {
+                    value: 60,
+                    rampTo: function(newTempo, duration) { this.value = newTempo; }
+                },
+                start: function() { console.log("Transport Started (Mock)"); },
+                stop: function() { console.log("Transport Stopped (Mock)"); },
+                updateBPM: function(newTempo) { this.bpm.value = newTempo; } 
+            },
+            start: async function() { console.log("Audio Context Started (Mock)"); },
+            Synth: function() {
+                return {
+                    volume: { rampTo: function() {} },
+                    toDestination: function() { return this; },
+                    triggerAttackRelease: function(note, duration, time) {
+                        // Mock notes are triggered, but no sound is produced
+                    }
+                }
+            },
+            Loop: function(callback, interval) {
+                let isPlaying = false;
+                let timer = null;
+                
+                const self = {
+                    start: function(startTime) {
+                        if (isPlaying) return;
+                        isPlaying = true;
+                        // Mock the rhythmic callback execution
+                        timer = setInterval(() => {
+                            if (isPlaying) callback(Tone.Transport.value);
+                        }, 500); 
+                    },
+                    stop: function() {
+                        if (timer) clearInterval(timer);
+                        isPlaying = false;
+                    }
+                };
+                return self;
+            },
+            toDestination: function() { return this; }
+        };
+
+        // Use the MockTone directly since the real Tone.js is blocked
+        const Tone = MockTone; 
+
+        // The Adaptive Music Generation Logic (using the Mock engine)
+        const createAdaptiveMusic = (Tone) => {
+          if (!Tone) return null;
+
+          const synth = new Tone.Synth({}).toDestination(); // Mock Synth
+
+          let pattern = null;
+          const CONSONANT_SCALE = ["C4", "E4", "G4", "A4"]; 
+          const DISSONANT_SCALE = ["C4", "C#4", "F#4", "A4"]; 
+
+          const startAndControlMusic = () => {
+            if (pattern) {
+              pattern.stop();
+              Tone.Transport.stop();
+            }
+            
+            pattern = new Tone.Loop(time => {
+              const arousalSlider = document.getElementById('arousalSlider');
+              if (!arousalSlider) return; 
+
+              const currentArousal = parseFloat(arousalSlider.value);
+              const scale = currentArousal > 50 ? DISSONANT_SCALE : CONSONANT_SCALE;
+              const note = scale[Math.floor(Math.random() * scale.length)];
+              
+              synth.triggerAttackRelease(note, "4n", time);
+              
+              const volumeDb = -20 + (currentArousal * 0.15); 
+              synth.volume.rampTo(volumeDb, 0.1);
+              
+              const newTempo = 60 + (currentArousal * 0.6); 
+              Tone.Transport.bpm.rampTo(newTempo, 0.5);
+              
+              // CRITICAL: Manually update the state for the display since the Mock is not integrated with React's update cycle
+              document.dispatchEvent(new CustomEvent('mock-tone-update', { detail: { newTempo } }));
+
+
+            }, "4n").start(0); 
+
+            Tone.Transport.start();
+          };
+
+          return { startAndControlMusic, synth };
+        };
+
+
+        const App = () => {
+          const [arousal, setArousal] = useState(50); 
+          const [isStarted, setIsStarted] = useState(false);
+          const toneRef = useRef(null); 
+          const [isScriptLoaded, setIsScriptLoaded] = useState(false); 
+          const [currentBPM, setCurrentBPM] = useState(90); 
+
+          // EFFECT: Initialize Mock Tone and attach custom update listener
+          useEffect(() => {
+            // Initialization is immediate because the MockTone object is inline
+            toneRef.current = createAdaptiveMusic(Tone);
+            setIsScriptLoaded(true); 
+
+            // Listener for MockTone updates (to refresh the displayed BPM)
+            const handleMockUpdate = (e) => {
+                if (e.detail && e.detail.newTempo) {
+                    setCurrentBPM(e.detail.newTempo);
+                }
+            };
+            
+            document.addEventListener('mock-tone-update', handleMockUpdate);
+
+            // Cleanup logic (stops the audio when component unmounts)
+            return () => {
+              document.removeEventListener('mock-tone-update', handleMockUpdate);
+              if (Tone && Tone.Transport) {
+                Tone.Transport.stop();
+              }
+            };
+          }, []); 
+
+          const handleStart = async () => {
+            if (!isScriptLoaded) {
+              console.error("Audio engine not ready.");
+              return;
+            }
+
+            // Mock start the AudioContext on user interaction 
+            await Tone.start();
+            setIsStarted(true);
+            setCurrentBPM(Math.round(60 + (arousal * 0.6))); 
+
+            if (toneRef.current) {
+              toneRef.current.startAndControlMusic();
+            }
+          };
+
+          // Handle slider change (updates state and BPM display immediately)
+          const handleArousalChange = (event) => {
+            const newArousal = parseFloat(event.target.value);
+            setArousal(newArousal);
+            setCurrentBPM(Math.round(60 + (newArousal * 0.6)));
+          };
+
+          const roundedArousal = Math.round(arousal);
+          let arousalColor;
+          if (roundedArousal > 75) {
+            arousalColor = 'bg-red-500';
+          } else if (roundedArousal > 50) {
+            arousalColor = 'bg-yellow-500';
+          } else {
+            arousalColor = 'bg-green-500';
+          }
+
+          return (
+            <div className="min-h-screen bg-gray-100 p-4 sm:p-8 flex items-center justify-center font-inter">
+              <div className="w-full max-w-lg bg-white p-8 rounded-xl shadow-2xl border border-gray-200">
+                
+                <h1 className="text-3xl font-extrabold text-center text-gray-800 mb-2">
+                  Real-Time Music Regulator
+                </h1>
+                <p className="text-center text-sm text-gray-500 mb-8">
+                  Adaptive Music Intervention Demo (Simulated Biofeedback)
+                </p>
+
+                {!isStarted && (
+                  <div className="text-center">
+                    <button
+                      onClick={handleStart}
+                      className={`w-full py-3 px-6 text-white font-semibold rounded-lg shadow-md transition duration-300 transform hover:scale-105 ${isScriptLoaded ? 'bg-indigo-600 hover:bg-indigo-700' : 'bg-gray-400 cursor-not-allowed'}`}
+                      disabled={!isScriptLoaded}
+                    >
+                      {isScriptLoaded ? 'Start Adaptive Music Engine' : 'Initializing Engine...'}
+                    </button>
+                    <p className="mt-4 text-sm text-gray-600">
+                      *Note: Sound is disabled in this preview due to environment security. The adaptive logic is fully functional.
+                    </p>
+                  </div>
+                )}
+
+                {isStarted && (
+                  <div className="space-y-8">
+                    {/* 1. Biofeedback Input Simulator */}
+                    <div>
+                      <label htmlFor="arousalSlider" className="text-lg font-semibold text-gray-700 flex justify-between items-center mb-4">
+                        Simulated Arousal / Stress Level
+                        <span className={`px-4 py-1 text-white font-bold rounded-full transition-colors duration-500 ${arousalColor}`}>
+                          {roundedArousal}
+                        </span>
+                      </label>
+                      <input
+                        id="arousalSlider"
+                        type="range"
+                        min="0"
+                        max="100"
+                        value={arousal}
+                        onChange={handleArousalChange}
+                        className="w-full h-3 bg-gray-200 rounded-lg appearance-none cursor-pointer range-lg accent-indigo-500"
+                      />
+                    </div>
+
+                    {/* 2. Visual Feedback (The "Patient Status") */}
+                    <div className="text-center p-4 border border-gray-100 rounded-lg">
+                      <h3 className="text-xl font-bold text-gray-800 mb-4">Adaptive Music Status</h3>
+                      <div className="flex justify-around text-center space-x-4">
+                        <div className="p-3 bg-indigo-50 rounded-lg w-1/2">
+                          <p className="text-sm text-gray-500">Current Tempo (BPM)</p>
+                          <p className="text-2xl font-extrabold text-indigo-600">
+                            {Math.round(currentBPM)}
+                          </p>
+                        </div>
+                        <div className="p-3 bg-indigo-50 rounded-lg w-1/2">
+                          <p className="text-sm text-gray-500">Harmonic Profile</p>
+                          <p className="text-lg font-bold text-indigo-600">
+                            {arousal > 50 ? 'Complex (Higher Arousal)' : 'Consonant (Calming)'}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* 3. Therapeutic Explanation (DTx Component) */}
+                    <div className="mt-6 p-4 bg-indigo-50 rounded-xl border border-indigo-200">
+                      <h4 className="font-semibold text-indigo-700">Therapeutic Rationale:</h4>
+                      <ul className="list-disc list-inside text-sm text-gray-600 mt-2 space-y-1">
+                        <li>**Biofeedback Loop:** Simulates how physiological data (Arousal) dictates therapeutic music parameters in real-time.</li>
+                        <li>**Evidence-Based Mapping:** Slower tempo and consonant harmony are used to specifically target and reduce stress/hyper-arousal.</li>
+                        <li>**DTx Relevance:** This demonstrates the core principle of an adaptive, closed-loop Digital Therapeutic (DTx) intervention.</li>
+                      </ul>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          );
+        };
+
+        const container = document.getElementById('root');
+        const root = ReactDOM.createRoot(container);
+        root.render(<App />);
+    </script>
+</body>
+</html>

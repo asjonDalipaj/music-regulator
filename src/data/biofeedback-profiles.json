@@ -1,0 +1,159 @@
+{
+  "profiles": {
+    "relaxed": {
+      "name": "Relaxed State",
+      "description": "Low arousal, positive valence - optimal for meditation",
+      "heartRate": 65,
+      "heartRateVariability": 85,
+      "arousal": 20,
+      "valence": 80,
+      "respirationRate": 12,
+      "skinConductance": 2.5,
+      "muscleTension": 15
+    },
+    "focused": {
+      "name": "Focused Attention",
+      "description": "Moderate arousal, neutral valence - productive work state",
+      "heartRate": 72,
+      "heartRateVariability": 65,
+      "arousal": 45,
+      "valence": 60,
+      "respirationRate": 14,
+      "skinConductance": 4.0,
+      "muscleTension": 30
+    },
+    "stressed": {
+      "name": "Acute Stress",
+      "description": "High arousal, negative valence - needs regulation",
+      "heartRate": 95,
+      "heartRateVariability": 35,
+      "arousal": 85,
+      "valence": 30,
+      "respirationRate": 18,
+      "skinConductance": 7.5,
+      "muscleTension": 75
+    },
+    "anxious": {
+      "name": "Anxiety State",
+      "description": "Moderate-high arousal, low valence - chronic worry",
+      "heartRate": 88,
+      "heartRateVariability": 40,
+      "arousal": 75,
+      "valence": 35,
+      "respirationRate": 16,
+      "skinConductance": 6.8,
+      "muscleTension": 65
+    },
+    "energized": {
+      "name": "Positive Energy",
+      "description": "High arousal, positive valence - exercise or excitement",
+      "heartRate": 92,
+      "heartRateVariability": 50,
+      "arousal": 80,
+      "valence": 75,
+      "respirationRate": 17,
+      "skinConductance": 5.5,
+      "muscleTension": 45
+    },
+    "fatigued": {
+      "name": "Mental Fatigue",
+      "description": "Low arousal, low valence - burnout symptoms",
+      "heartRate": 70,
+      "heartRateVariability": 45,
+      "arousal": 25,
+      "valence": 35,
+      "respirationRate": 13,
+      "skinConductance": 3.2,
+      "muscleTension": 50
+    }
+  },
+  "scenarios": {
+    "stress_reduction": {
+      "name": "Stress Reduction Session",
+      "description": "30-minute therapeutic intervention - stressed to relaxed",
+      "duration": 1800,
+      "timeline": [
+        { "time": 0, "profile": "stressed" },
+        { "time": 300, "profile": "anxious" },
+        { "time": 900, "profile": "focused" },
+        { "time": 1500, "profile": "relaxed" },
+        { "time": 1800, "profile": "relaxed" }
+      ]
+    },
+    "focus_enhancement": {
+      "name": "Focus Enhancement",
+      "description": "15-minute concentration boost - fatigued to focused",
+      "duration": 900,
+      "timeline": [
+        { "time": 0, "profile": "fatigued" },
+        { "time": 300, "profile": "focused" },
+        { "time": 600, "profile": "focused" },
+        { "time": 900, "profile": "focused" }
+      ]
+    },
+    "anxiety_management": {
+      "name": "Anxiety Management",
+      "description": "20-minute calming session - anxious to relaxed",
+      "duration": 1200,
+      "timeline": [
+        { "time": 0, "profile": "anxious" },
+        { "time": 400, "profile": "focused" },
+        { "time": 800, "profile": "relaxed" },
+        { "time": 1200, "profile": "relaxed" }
+      ]
+    }
+  },
+  "physiologicalRanges": {
+    "heartRate": {
+      "min": 50,
+      "max": 120,
+      "resting": 65,
+      "stressed": 95,
+      "unit": "bpm"
+    },
+    "heartRateVariability": {
+      "min": 20,
+      "max": 100,
+      "low": 35,
+      "high": 85,
+      "unit": "ms"
+    },
+    "arousal": {
+      "min": 0,
+      "max": 100,
+      "low": 20,
+      "moderate": 50,
+      "high": 85,
+      "unit": "scale"
+    },
+    "valence": {
+      "min": 0,
+      "max": 100,
+      "negative": 30,
+      "neutral": 50,
+      "positive": 80,
+      "unit": "scale"
+    },
+    "respirationRate": {
+      "min": 8,
+      "max": 25,
+      "resting": 12,
+      "stressed": 18,
+      "unit": "breaths/min"
+    },
+    "skinConductance": {
+      "min": 1.0,
+      "max": 10.0,
+      "low": 2.5,
+      "high": 7.5,
+      "unit": "microsiemens"
+    },
+    "muscleTension": {
+      "min": 0,
+      "max": 100,
+      "relaxed": 15,
+      "tense": 75,
+      "unit": "scale"
+    }
+  }
+}
