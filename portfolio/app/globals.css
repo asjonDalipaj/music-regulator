@@ -1,32 +1,45 @@
 @import "tailwindcss";
 
 :root {
-  /* Renaissance-inspired color palette */
+  /* Energetic Modern Palette */
+  --electric-coral: #FF6B6B;
+  --coral-light: #FF8787;
+  --coral-dark: #FF4757;
+  
+  --bright-cyan: #4ECDC4;
+  --cyan-light: #7EDDD8;
+  --cyan-dark: #2CB5AC;
+  
+  --sunny-yellow: #FFE66D;
+  --yellow-light: #FFF0A3;
+  --yellow-dark: #FFD93D;
+  
+  --purple-pop: #A78BFA;
+  --purple-light: #C4B5FD;
+  --purple-dark: #8B5CF6;
+  
+  /* Neutral Base */
+  --white: #FFFFFF;
+  --light-gray: #F8F9FA;
+  --gray: #E9ECEF;
+  
+  --charcoal: #1A1A1A;
+  --charcoal-light: #4A4A4A;
+  
+  /* Legacy Renaissance colors (for sections not yet updated) */
   --burgundy: #6b2737;
-  --burgundy-light: #8b3a4f;
-  --burgundy-dark: #4a1a26;
-  
   --gold: #c9a961;
-  --gold-light: #e6c88a;
-  --gold-dark: #a48840;
-  
   --sage: #8a9a7b;
-  --sage-light: #a8b89d;
-  --sage-dark: #6b7a5d;
-  
   --cream: #f5f1e8;
-  --cream-dark: #e8e0d0;
-  
-  --charcoal: #2d2d2d;
-  --charcoal-light: #4a4a4a;
   
   /* Semantic colors */
-  --background: var(--cream);
+  --background: var(--white);
   --foreground: var(--charcoal);
-  --accent: var(--burgundy);
-  --accent-light: var(--burgundy-light);
-  --secondary: var(--gold);
-  --tertiary: var(--sage);
+  --accent: var(--electric-coral);
+  --accent-light: var(--coral-light);
+  --secondary: var(--bright-cyan);
+  --tertiary: var(--sunny-yellow);
+  --accent-purple: var(--purple-pop);
 }
 
 @theme inline {
@@ -36,11 +49,25 @@
   --color-accent-light: var(--accent-light);
   --color-secondary: var(--secondary);
   --color-tertiary: var(--tertiary);
+  
+  /* New energetic colors */
+  --color-coral: var(--electric-coral);
+  --color-coral-light: var(--coral-light);
+  --color-coral-dark: var(--coral-dark);
+  --color-cyan: var(--bright-cyan);
+  --color-cyan-light: var(--cyan-light);
+  --color-yellow: var(--sunny-yellow);
+  --color-yellow-light: var(--yellow-light);
+  --color-purple: var(--purple-pop);
+  --color-purple-light: var(--purple-light);
+  
+  /* Legacy colors */
   --color-burgundy: var(--burgundy);
   --color-gold: var(--gold);
   --color-sage: var(--sage);
   --color-cream: var(--cream);
   --color-charcoal: var(--charcoal);
+  
   --font-heading: var(--font-playfair);
   --font-body: var(--font-inter);
 }

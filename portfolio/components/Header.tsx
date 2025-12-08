@@ -67,7 +67,7 @@ export default function Header() {
             
             {/* LinkedIn Link */}
             <motion.a
-              href="https://www.linkedin.com/in/asjon-dalipaj"
+              href="https://www.linkedin.com/in/asjon-dalipaj-49908b85/"
               target="_blank"
               rel="noopener noreferrer"
               whileHover={{ scale: 1.1 }}
