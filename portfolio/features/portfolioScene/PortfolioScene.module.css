@@ -1,0 +1,259 @@
+/* Portfolio Scene V2 Styles */
+.container {
+  position: relative;
+  width: 100%;
+  min-height: 100vh;
+  background: var(--color-bg, #050505);
+  overflow-x: hidden;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  color: var(--color-text, #ffffff);
+}
+
+/* Canvas Container */
+.canvasContainer {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Content Overlay */
+.content {
+  position: relative;
+  z-index: 2;
+}
+
+/* Loading Screen */
+.loader {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: var(--color-bg, #050505);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  transition: opacity 0.5s ease-out;
+}
+
+.loader.fadeOut {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.loaderText {
+  font-size: 1.5rem;
+  font-weight: 300;
+  letter-spacing: 0.2em;
+  background: linear-gradient(
+    90deg,
+    var(--color-accent-a, #ff2a6d),
+    var(--color-base, #05d9e8),
+    var(--color-accent-b, #ffcc00)
+  );
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: shimmer 3s linear infinite;
+}
+
+@keyframes shimmer {
+  to {
+    background-position: 200% center;
+  }
+}
+
+.loaderProgress {
+  width: 200px;
+  height: 2px;
+  background: rgba(255, 255, 255, 0.1);
+  margin-top: 2rem;
+  border-radius: 1px;
+  overflow: hidden;
+}
+
+.loaderBar {
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    var(--color-accent-a, #ff2a6d),
+    var(--color-base, #05d9e8)
+  );
+  transition: width 0.3s ease;
+}
+
+/* UI Layer - Top overlay with mix-blend-mode */
+.uiLayer {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 10;
+  padding: 2rem;
+  display: flex;
+  justify-content: space-between;
+  mix-blend-mode: difference;
+}
+
+.logo {
+  font-weight: 800;
+  letter-spacing: -1px;
+  font-size: 1.2rem;
+  color: #ffffff;
+  pointer-events: none;
+}
+
+.soundToggle {
+  pointer-events: auto;
+  cursor: pointer;
+  font-size: 0.8rem;
+  font-weight: 600;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 20px;
+  padding: 0.5rem 1.2rem;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(5px);
+  background: transparent;
+  color: #ffffff;
+}
+
+.soundToggle:hover {
+  border-color: rgba(255, 255, 255, 0.6);
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.soundToggle:focus {
+  outline: 2px solid rgba(255, 255, 255, 0.5);
+  outline-offset: 2px;
+}
+
+/* Section Styles */
+.section {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  padding: 4rem 2rem;
+  position: relative;
+}
+
+.section h2 {
+  font-size: clamp(2.5rem, 8vw, 5rem);
+  font-weight: 800;
+  line-height: 1;
+  margin: 0 0 2rem 0;
+  letter-spacing: -0.02em;
+}
+
+.section p {
+  font-size: clamp(1rem, 2vw, 1.25rem);
+  line-height: 1.6;
+  max-width: 600px;
+  opacity: 0.9;
+}
+
+.sectionContent {
+  max-width: 1200px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+/* Left-aligned sections */
+.section.left .sectionContent {
+  text-align: left;
+}
+
+/* Right-aligned sections */
+.section.right .sectionContent {
+  text-align: right;
+  margin-left: auto;
+}
+
+/* Center-aligned sections */
+.section.center .sectionContent {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* Project Grid */
+.projectGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 2rem;
+  margin-top: 3rem;
+}
+
+.projectCard {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 2rem;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.projectCard:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: var(--color-base, #05d9e8);
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(5, 217, 232, 0.2);
+}
+
+.projectCard h3 {
+  font-size: 1.5rem;
+  margin: 0 0 1rem 0;
+  color: var(--color-base, #05d9e8);
+}
+
+.projectCard p {
+  font-size: 1rem;
+  opacity: 0.8;
+  margin: 0;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .section {
+    padding: 3rem 1.5rem;
+  }
+
+  .uiLayer {
+    padding: 1rem;
+  }
+
+  .logo {
+    font-size: 1rem;
+  }
+
+  .soundToggle {
+    font-size: 0.7rem;
+    padding: 0.4rem 1rem;
+  }
+
+  .projectGrid {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+}
+
+/* Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+  .audioToggle,
+  .projectCard {
+    transition: none;
+  }
+
+  .loaderText {
+    animation: none;
+  }
+}

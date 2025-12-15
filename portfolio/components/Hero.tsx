@@ -3,6 +3,7 @@
 import { motion } from "framer-motion";
 import RenaissanceDecorations from "./hero/RenaissanceDecorations";
 import TypewriterPoetry from "./hero/TypewriterPoetry";
+import FluidDistortion from "./effects/FluidDistortion";
 import {
   containerVariants,
   letterVariants,
@@ -22,6 +23,7 @@ export default function Hero() {
 
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-white">
+      
       {/* Colorful Floating Shapes - Paint Splatter Style */}
       <div className="absolute inset-0 overflow-hidden">
         {/* Large Coral Blob */}

@@ -1,0 +1,164 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap');
+
+:root {
+    --bg-color: #050505;
+    --text-primary: #ffffff;
+    --text-secondary: #a0a0a0;
+    --accent-glow: #ffcc00;
+    --accent-hot: #ff2a6d;
+    --glass-bg: rgba(255, 255, 255, 0.03);
+    --glass-border: rgba(255, 255, 255, 0.08);
+    --font-main: 'Inter', sans-serif;
+}
+
+.portfolio-wrapper {
+    background-color: var(--bg-color);
+    color: var(--text-primary);
+    font-family: var(--font-main);
+    overflow-x: hidden;
+    width: 100%;
+    min-height: 100vh;
+}
+
+#canvas-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100vh;
+    z-index: 0;
+}
+
+.ui-layer {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 10;
+    padding: 2rem;
+    display: flex;
+    justify-content: space-between;
+    mix-blend-mode: difference;
+}
+
+.logo { font-weight: 800; letter-spacing: -1px; font-size: 1.2rem; }
+
+.sound-toggle { 
+    pointer-events: auto; 
+    cursor: pointer; 
+    font-size: 0.8rem;
+    font-weight: 600;
+    border: 1px solid rgba(255,255,255,0.3);
+    border-radius: 20px;
+    padding: 0.5rem 1.2rem;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(5px);
+}
+
+main { position: relative; z-index: 1; width: 100%; }
+
+section {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 0 10%;
+    position: relative;
+    pointer-events: none;
+}
+
+section > * { pointer-events: auto; }
+
+h1 { 
+    font-size: clamp(3.5rem, 9vw, 7rem); 
+    margin-bottom: 1.5rem; 
+    background: linear-gradient(135deg, #fff 0%, #ffcc00 50%, #ff2a6d 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    font-weight: 800;
+}
+
+h2 { font-size: clamp(2rem, 5vw, 4rem); color: var(--text-primary); margin-bottom: 2rem; font-weight: 800; }
+p { font-size: 1.1rem; line-height: 1.7; max-width: 550px; color: var(--text-secondary); margin-bottom: 2rem; }
+
+.layout-left { align-items: flex-start; text-align: left; }
+.layout-right { align-items: flex-end; text-align: right; }
+.layout-center { align-items: center; text-align: center; }
+
+.project-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+    width: 100%;
+    max-width: 1200px;
+    margin-top: 3rem;
+}
+
+.card {
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    padding: 2.5rem;
+    border-radius: 16px;
+    backdrop-filter: blur(10px);
+    transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+    cursor: pointer;
+    text-align: left;
+}
+
+.card:hover {
+    transform: translateY(-8px) scale(1.02);
+    border-color: var(--accent-glow);
+    background: rgba(255, 255, 255, 0.06);
+    box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+}
+
+.card h3 { font-size: 1.5rem; margin-bottom: 1rem; color: var(--text-primary); }
+
+.card .tech-stack { 
+    font-size: 0.75rem; 
+    font-weight: 600;
+    color: var(--accent-glow); 
+    text-transform: uppercase; 
+    letter-spacing: 1px;
+    margin-top: 1.5rem; 
+    display: inline-block;
+    background: rgba(255, 204, 0, 0.1);
+    padding: 4px 12px;
+    border-radius: 20px;
+}
+
+.highlight { color: var(--accent-glow); }
+.contact-link { font-size: 1.5rem; text-decoration: none; border-bottom: 2px solid var(--accent-glow); }
+
+#loader {
+    position: fixed;
+    inset: 0;
+    background: var(--bg-color);
+    z-index: 100;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.loader-bar {
+    width: 200px;
+    height: 2px;
+    background: rgba(255,255,255,0.1);
+    position: relative;
+    overflow: hidden;
+}
+
+.loader-bar::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 50%;
+    background: var(--accent-glow);
+    animation: load 1.5s infinite ease-in-out;
+}
+
+@keyframes load { 0% { transform: translateX(-100%); } 100% { transform: translateX(200%); } }

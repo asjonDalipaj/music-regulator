@@ -316,6 +316,249 @@ portfolio/
 
 ---
 
-**Last Updated**: 2025-08-12  
-**Version**: 0.6.0  
-**Total Modules**: 16 (6 TypeScript core + 1 JSON + 9 Portfolio components)
+### Portfolio Effects Components (v0.8.0)
+
+#### `portfolio/components/effects/FluidDistortion.tsx`
+- **Type**: React Component (Client-side)
+- **Dependencies**: External: React (useEffect, useRef)
+- **Provides**: Canvas-based fluid distortion effect with colorful mouse trails
+- **Features**:
+  - Velocity-based particle generation (8 particles per frame)
+  - Radial gradients with alpha blending
+  - Color palette: coral, cyan, yellow, purple
+  - Configurable intensity and dissipation
+- **Size**: ~145 lines ✅
+- **Integration**: Hero section background effect
+
+---
+
+---
+
+## Portfolio Scene V2 - Feature-Based Architecture (v1.0.0)
+
+### Route Entry Point
+
+#### `portfolio/app/portfolio-v2/page.tsx`
+- **Type**: Next.js Page Route
+- **Dependencies**: Internal: `@/features/portfolioScene/PortfolioScene`
+- **Provides**: Route wrapper for /portfolio-v2 path
+- **Size**: ~10 lines ✅
+
+### Main Orchestrator
+
+#### `portfolio/features/portfolioScene/PortfolioScene.tsx`
+- **Type**: React Component (Client-side)
+- **Dependencies**: 
+  - Internal: `./webgl/SceneManager`, `./webgl/AudioManager`, `./webgl/config`, `./ui/*`, `./sections/*`
+  - External: React (useEffect, useRef, useState)
+- **Provides**: Main component orchestrating entire portfolio scene
+- **Features**:
+  - Three.js scene initialization and lifecycle
+  - Event listeners (scroll, mouse, resize)
+  - RequestAnimationFrame loop
+  - Audio management integration
+  - Section composition
+- **Size**: ~140 lines ✅
+
+#### `portfolio/features/portfolioScene/PortfolioScene.module.css`
+- **Type**: CSS Module
+- **Dependencies**: None
+- **Provides**: Scoped styling for portfolio scene layout
+- **Features**:
+  - Container and canvas positioning
+  - Section layouts and grids
+  - Loader and audio toggle styles
+  - Project card styling
+- **Size**: ~200 lines ✅
+
+### WebGL System
+
+#### `portfolio/features/portfolioScene/webgl/config.ts`
+- **Type**: TypeScript Configuration Module
+- **Dependencies**: None
+- **Provides**: 
+  - `SceneConfig` interface
+  - `sceneConfig` default instance
+  - `getAdaptiveConfig()` function with device detection
+- **Features**:
+  - Color palette configuration
+  - Camera and geometry settings
+  - Particle system parameters
+  - Performance optimization rules
+  - Mobile/desktop adaptation
+  - Reduced motion support
+- **Size**: ~115 lines ✅
+
+#### `portfolio/features/portfolioScene/webgl/types.ts`
+- **Type**: TypeScript Type Definitions
+- **Dependencies**: External: Three.js
+- **Provides**: TypeScript interfaces for all WebGL entities
+- **Exports**:
+  - `Vector2D`, `Vector3D`
+  - `ParticleSystem`, `Particle`
+  - `MorphingMesh`
+  - `InteractionState`
+- **Size**: ~85 lines ✅
+
+#### `portfolio/features/portfolioScene/webgl/shaders.ts`
+- **Type**: GLSL Shader Definitions
+- **Dependencies**: None
+- **Provides**: Custom vertex and fragment shaders
+- **Features**:
+  - Vertex shader with displacement and color variation
+  - Fragment shader with liquid metal effect
+  - Fresnel-based rim lighting
+  - Audio-reactive parameters
+  - Smooth color transitions
+- **Size**: ~95 lines ✅
+
+#### `portfolio/features/portfolioScene/webgl/SceneManager.ts`
+- **Type**: TypeScript Class Module
+- **Dependencies**: 
+  - External: Three.js
+  - Internal: `./types`, `./shaders`, `./config`
+- **Provides**: Core Three.js scene management
+- **Features**:
+  - Scene, camera, renderer initialization
+  - Particle system creation and animation
+  - Morphing geometry mesh with custom shaders
+  - Scroll and mouse interaction handling
+  - Smooth interpolation (lerp) for all animations
+  - Resize handling
+  - Proper disposal/cleanup
+- **Size**: ~310 lines ✅
+
+#### `portfolio/features/portfolioScene/webgl/AudioManager.ts`
+- **Type**: TypeScript Class Module
+- **Dependencies**: None (Web Audio API)
+- **Provides**: Audio analysis and management
+- **Features**:
+  - OscillatorNode for ambient audio
+  - AnalyserNode for frequency data
+  - Play/stop controls
+  - Frequency data extraction
+  - Proper cleanup
+- **Size**: ~85 lines ✅
+
+### UI Components
+
+#### `portfolio/features/portfolioScene/ui/Loader.tsx`
+- **Type**: React Component
+- **Dependencies**: Internal: `../PortfolioScene.module.css`
+- **Provides**: Animated loading screen overlay
+- **Features**:
+  - Conditional rendering based on loading state
+  - Fade-in/out transitions
+  - Centered spinner animation
+- **Size**: ~25 lines ✅
+
+#### `portfolio/features/portfolioScene/ui/AudioToggle.tsx`
+- **Type**: React Component
+- **Dependencies**: Internal: `../PortfolioScene.module.css`
+- **Provides**: Floating audio control button
+- **Features**:
+  - Play/pause state visualization
+  - Icon toggle (🔊/🔇)
+  - Accessible ARIA labels
+  - Fixed positioning
+- **Size**: ~30 lines ✅
+
+### Content Sections
+
+#### `portfolio/features/portfolioScene/sections/HeroSection.tsx`
+- **Type**: React Component
+- **Dependencies**: Internal: `../PortfolioScene.module.css`
+- **Provides**: Opening hero section with headline
+- **Features**:
+  - "Building Electric Dreams" headline
+  - Accent color highlighting
+  - Left-aligned layout
+- **Size**: ~25 lines ✅
+
+#### `portfolio/features/portfolioScene/sections/AboutSection.tsx`
+- **Type**: React Component
+- **Dependencies**: Internal: `../PortfolioScene.module.css`
+- **Provides**: Philosophy and approach description
+- **Features**:
+  - "Vibrant Logic" heading
+  - Technology philosophy statement
+  - Right-aligned layout
+- **Size**: ~25 lines ✅
+
+#### `portfolio/features/portfolioScene/sections/ProjectsSection.tsx`
+- **Type**: React Component
+- **Dependencies**: Internal: `../PortfolioScene.module.css`
+- **Provides**: Featured projects showcase
+- **Features**:
+  - 3 project cards with titles, descriptions, tech stacks
+  - Grid layout
+  - Tech stack badges
+  - Center-aligned layout
+- **Size**: ~60 lines ✅
+
+#### `portfolio/features/portfolioScene/sections/ContactSection.tsx`
+- **Type**: React Component
+- **Dependencies**: Internal: `../PortfolioScene.module.css`
+- **Provides**: Contact information section
+- **Features**:
+  - Contact heading
+  - Email link with accent styling
+  - Left-aligned layout
+- **Size**: ~30 lines ✅
+
+### Dependency Graph - Portfolio Scene V2
+
+```
+┌───────────────────────────────────┐
+│ app/portfolio-v2/page.tsx         │
+│ (Route Entry)                     │
+└────────────┬──────────────────────┘
+             │
+             ▼
+┌───────────────────────────────────┐
+│ features/portfolioScene/          │
+│ PortfolioScene.tsx                │
+│ (Main Orchestrator)               │
+└─────┬────────┬──────────┬─────────┘
+      │        │          │
+      ▼        ▼          ▼
+┌─────────┐ ┌──────┐ ┌──────────┐
+│ webgl/  │ │ ui/  │ │sections/ │
+└─────┬───┘ └──┬───┘ └─────┬────┘
+      │        │           │
+      ▼        ▼           ▼
+┌─────────────────────────────────┐
+│ - SceneManager.ts               │
+│ - AudioManager.ts               │
+│ - config.ts, types.ts, shaders.ts│
+│ - Loader.tsx, AudioToggle.tsx   │
+│ - Hero, About, Projects, Contact│
+└─────────────────────────────────┘
+```
+
+### Architecture Principles
+
+1. **Feature-Based Structure**: All related code in `features/portfolioScene/`
+2. **Separation of Concerns**: 
+   - `webgl/` - Three.js and graphics logic
+   - `ui/` - Reusable UI components
+   - `sections/` - Content sections
+3. **Single Responsibility**: Each file handles one specific concern
+4. **Dependency Injection**: SceneManager accepts configuration
+5. **Type Safety**: Full TypeScript coverage
+6. **Performance First**: Adaptive quality based on device
+7. **Clean Lifecycle**: Proper initialization and cleanup
+
+### Integration Points
+
+1. **WebGL ↔ React**: Scene initialized in useEffect, refs for DOM
+2. **Scroll → WebGL**: Scroll events update scene progress
+3. **Mouse → WebGL**: Mouse movement creates parallax effect
+4. **Audio → WebGL**: Frequency data drives visual parameters
+5. **Resize → WebGL**: Window resize triggers camera/renderer updates
+
+---
+
+**Last Updated**: 2025-12-15  
+**Version**: 1.0.0  
+**Total Modules**: 29 (6 TypeScript core + 1 JSON + 10 Portfolio v1 components + 12 Portfolio Scene V2 modules)

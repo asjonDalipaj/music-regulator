@@ -3,10 +3,14 @@ import Hero from "@/components/Hero";
 import AboutMe from "@/components/about/AboutMe";
 import Skills from "@/components/skills/Skills";
 import Footer from "@/components/Footer";
+import FluidDistortion from "@/components/effects/FluidDistortion";
 
 export default function Home() {
   return (
-    <div className="min-h-screen">
+    <div className="relative min-h-screen">
+      {/* Fluid Distortion Effect - Full Page */}
+      <FluidDistortion intensity={1.2} />
+      
       <Header />
       <main>
         <Hero />
