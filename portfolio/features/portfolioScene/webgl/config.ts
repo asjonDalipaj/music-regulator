@@ -12,16 +12,31 @@ export interface SceneConfig {
   };
   camera: {
     fov: number;
-    z: number;
+    zStart: number;  // Zoomed in position
+    zEnd: number;    // Zoomed out position
+    scrollThreshold: number; // Scroll % where camera stops (0.5 = 50%)
   };
-  particles: {
-    count: number;
-    size: number;
-    opacity: number;
+  texture: {
+    path: string;
+    aspectRatio: number;
+    width: number;
+    height: number;
   };
-  mesh: {
-    subdivisions: number;
-    radius: number;
+  effects: {
+    chromaticAberration: {
+      base: number;
+      scrollMax: number;
+      audioMax: number;
+    };
+    uvDistortion: {
+      base: number;
+      scrollMax: number;
+      audioMax: number;
+    };
+    scrollVelocity: {
+      threshold: number;
+      multiplier: number;
+    };
   };
   performance: {
     maxDPR: number;
@@ -30,35 +45,9 @@ export interface SceneConfig {
 }
 
 /**
- * Default scene configuration instance
+ * Default scene configuration instance - Shopify-style cinematic experience
  */
 export const sceneConfig: SceneConfig = {
-  colors: {
-    bg: '#050505',
-    accentA: '#ff2a6d',
-    accentB: '#ffcc00',
-    base: '#05d9e8'
-  },
-  camera: {
-    fov: 40,
-    z: 7
-  },
-  mesh: {
-    radius: 1.5,
-    subdivisions: 120
-  },
-  particles: {
-    count: 1000,
-    size: 0.04,
-    opacity: 0.6
-  },
-  performance: {
-    maxDPR: 2,
-    reduceMotion: false
-  }
-};
-
-export const CONFIG: SceneConfig = {
   colors: {
     bg: '#050505',
     accentA: '#ff2a6d',  // Electric Red/Pink
@@ -67,22 +56,39 @@ export const CONFIG: SceneConfig = {
   },
   camera: {
     fov: 40,
-    z: 7
+    zStart: 3.5,         // Tight crop on headphones
+    zEnd: 8.0,           // Full character reveal
+    scrollThreshold: 0.5 // Camera locks at 50% scroll
   },
-  particles: {
-    count: 1000,
-    size: 0.04,
-    opacity: 0.6
+  texture: {
+    path: '/img/HeadphonesGirl2.png',
+    aspectRatio: 16 / 9,  // Landscape format
+    width: 6.0,           // Wide format for landscape
+    height: 3.375         // Maintains 16:9 ratio
   },
-  mesh: {
-    subdivisions: 64, // Reduced from 120 for better performance
-    radius: 1.5
+  effects: {
+    chromaticAberration: {
+      base: 0.0008,       // Very subtle at rest
+      scrollMax: 0.002,   // Gentle during scroll
+      audioMax: 0.003     // Slight pulse on audio
+    },
+    uvDistortion: {
+      base: 0.02,         // Minimal ripple
+      scrollMax: 0.05,    // Elegant wave during movement
+      audioMax: 0.08      // Responsive but refined
+    },
+    scrollVelocity: {
+      threshold: 0.01,    // Only on fast scrolling
+      multiplier: 0.5     // Gentle glitch response
+    }
   },
   performance: {
     maxDPR: 2,
     reduceMotion: false
   }
 };
+
+export const CONFIG: SceneConfig = sceneConfig;
 
 /**
  * Get adaptive config based on device and user preferences
@@ -96,15 +102,18 @@ export function getAdaptiveConfig(): SceneConfig {
     config.performance.reduceMotion = prefersReducedMotion;
     
     if (prefersReducedMotion) {
-      config.particles.count = 300; // Reduce particles
-      config.mesh.subdivisions = 32; // Reduce geometry complexity
+      // Reduce effect intensities
+      config.effects.chromaticAberration.scrollMax = 0.001;
+      config.effects.uvDistortion.scrollMax = 0.02;
     }
     
     // Reduce quality on mobile
     const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
     if (isMobile) {
-      config.particles.count = Math.min(config.particles.count, 600);
       config.performance.maxDPR = 1.5;
+      // Reduce effect intensity on mobile for better performance
+      config.effects.chromaticAberration.audioMax = 0.002;
+      config.effects.uvDistortion.audioMax = 0.05;
     }
   }
   

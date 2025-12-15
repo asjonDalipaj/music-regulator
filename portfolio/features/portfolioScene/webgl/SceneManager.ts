@@ -1,7 +1,7 @@
 /**
- * Scene Manager
- * Core Three.js scene management with imperative API
- * Handles renderer, scene, camera, mesh, particles, and animation
+ * Scene Manager V2 - Shopify-Inspired Cinematic Experience
+ * Core Three.js scene management with texture-based plane
+ * Features: Camera dolly zoom, elegant glitch effects, audio reactivity
  */
 
 import * as THREE from 'three';
@@ -13,18 +13,20 @@ export class SceneManager {
   private renderer: THREE.WebGLRenderer;
   private scene: THREE.Scene;
   private camera: THREE.PerspectiveCamera;
-  private mesh: THREE.Mesh;
-  private particles: THREE.Points;
+  private plane: THREE.Mesh;
   private material: THREE.ShaderMaterial;
+  private texture: THREE.Texture | null = null;
+  private textureLoader: THREE.TextureLoader;
   
   // State
   private scrollTarget: number = 0;
   private scrollCurrent: number = 0;
+  private scrollPrevious: number = 0;
+  private scrollVelocity: number = 0;
   private mouseTarget: MousePosition = { x: 0, y: 0 };
   private mouseCurrent: MousePosition = { x: 0, y: 0 };
   
   // Animation
-  private rafId: number | null = null;
   private isDisposed: boolean = false;
 
   constructor(container: HTMLElement, private config: SceneConfig) {
@@ -41,7 +43,7 @@ export class SceneManager {
 
     // Setup scene
     this.scene = new THREE.Scene();
-    this.scene.fog = new THREE.FogExp2(config.colors.bg, 0.05);
+    this.scene.background = new THREE.Color(config.colors.bg);
 
     // Setup camera
     this.camera = new THREE.PerspectiveCamera(
@@ -50,27 +52,82 @@ export class SceneManager {
       0.1,
       100
     );
-    this.camera.position.z = config.camera.z;
+    this.camera.position.z = config.camera.zStart;
 
-    // Create mesh
-    this.mesh = this.createMesh();
-    this.scene.add(this.mesh);
+    // Create texture loader
+    this.textureLoader = new THREE.TextureLoader();
 
-    // Create particles
-    this.particles = this.createParticles();
-    this.scene.add(this.particles);
+    // Create plane (will be textured after loading)
+    this.plane = this.createPlane();
+    this.scene.add(this.plane);
 
     // Store material reference for updates
-    this.material = this.mesh.material as THREE.ShaderMaterial;
+    this.material = this.plane.material as THREE.ShaderMaterial;
+
+    // Load texture asynchronously
+    this.loadTexture();
   }
 
   /**
-   * Create the main fluid mesh
+   * Load the hero image texture
    */
-  private createMesh(): THREE.Mesh {
-    const geometry = new THREE.IcosahedronGeometry(
-      this.config.mesh.radius,
-      this.config.mesh.subdivisions
+  private loadTexture(): void {
+    this.textureLoader.load(
+      this.config.texture.path,
+      (texture) => {
+        this.texture = texture;
+        this.material.uniforms.uTexture.value = texture;
+        this.material.needsUpdate = true;
+        console.log('✅ Texture loaded successfully:', this.config.texture.path);
+      },
+      undefined,
+      (error) => {
+        console.error('❌ Error loading texture:', error);
+        // Create fallback gradient texture
+        this.createFallbackTexture();
+      }
+    );
+  }
+
+  /**
+   * Create a fallback gradient texture if image fails to load
+   */
+  private createFallbackTexture(): void {
+    const canvas = document.createElement('canvas');
+    canvas.width = 1024;
+    canvas.height = 576; // 16:9 ratio
+    const ctx = canvas.getContext('2d')!;
+    
+    // Create gradient
+    const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+    gradient.addColorStop(0, this.config.colors.accentA);
+    gradient.addColorStop(0.5, this.config.colors.base);
+    gradient.addColorStop(1, this.config.colors.accentB);
+    
+    ctx.fillStyle = gradient;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    
+    // Add text
+    ctx.fillStyle = '#ffffff';
+    ctx.font = '48px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('Add your image here:', canvas.width / 2, canvas.height / 2 - 30);
+    ctx.fillText(this.config.texture.path, canvas.width / 2, canvas.height / 2 + 30);
+    
+    this.texture = new THREE.CanvasTexture(canvas);
+    this.material.uniforms.uTexture.value = this.texture;
+    this.material.needsUpdate = true;
+  }
+
+  /**
+   * Create the main image plane with shaders
+   */
+  private createPlane(): THREE.Mesh {
+    const geometry = new THREE.PlaneGeometry(
+      this.config.texture.width,
+      this.config.texture.height,
+      32,  // Width segments for smooth distortion
+      32   // Height segments
     );
 
     const material = new THREE.ShaderMaterial({
@@ -80,60 +137,17 @@ export class SceneManager {
         uTime: { value: 0 },
         uScroll: { value: 0 },
         uAudio: { value: 0 },
+        uScrollVelocity: { value: 0 },
+        uTexture: { value: null }, // Will be set when texture loads
         uColorA: { value: new THREE.Color(this.config.colors.accentA) },
         uColorB: { value: new THREE.Color(this.config.colors.accentB) },
-        uBaseColor: { value: new THREE.Color(this.config.colors.base) },
-        cameraPosition: { value: this.camera.position }
+        uChromaticAberration: { value: this.config.effects.chromaticAberration.base },
+        uUVDistortion: { value: this.config.effects.uvDistortion.base },
       },
+      transparent: false,
     });
 
-    const mesh = new THREE.Mesh(geometry, material);
-    mesh.position.x = 2;
-
-    return mesh;
-  }
-
-  /**
-   * Create particle system
-   */
-  private createParticles(): THREE.Points {
-    const geometry = new THREE.BufferGeometry();
-    const count = this.config.particles.count;
-    
-    const positions = new Float32Array(count * 3);
-    const colors = new Float32Array(count * 3);
-    
-    const colorPalette = [
-      new THREE.Color(this.config.colors.accentA),
-      new THREE.Color(this.config.colors.accentB),
-      new THREE.Color(this.config.colors.base)
-    ];
-
-    for (let i = 0; i < count * 3; i += 3) {
-      // Random positions in a large cube
-      positions[i] = (Math.random() - 0.5) * 20;
-      positions[i + 1] = (Math.random() - 0.5) * 20;
-      positions[i + 2] = (Math.random() - 0.5) * 20;
-      
-      // Random colors from palette
-      const color = colorPalette[Math.floor(Math.random() * colorPalette.length)];
-      colors[i] = color.r;
-      colors[i + 1] = color.g;
-      colors[i + 2] = color.b;
-    }
-
-    geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-    geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
-
-    const material = new THREE.PointsMaterial({
-      size: this.config.particles.size,
-      vertexColors: true,
-      transparent: true,
-      opacity: this.config.particles.opacity,
-      sizeAttenuation: true
-    });
-
-    return new THREE.Points(geometry, material);
+    return new THREE.Mesh(geometry, material);
   }
 
   /**
@@ -160,11 +174,10 @@ export class SceneManager {
   }
 
   /**
-   * Smoothstep interpolation
+   * Cubic ease-out function for smooth camera movement
    */
-  private smoothstep(min: number, max: number, value: number): number {
-    const x = Math.max(0, Math.min(1, (value - min) / (max - min)));
-    return x * x * (3 - 2 * x);
+  private easeOutCubic(x: number): number {
+    return 1 - Math.pow(1 - x, 3);
   }
 
   /**
@@ -178,33 +191,62 @@ export class SceneManager {
     this.mouseCurrent.x = THREE.MathUtils.lerp(this.mouseCurrent.x, this.mouseTarget.x, 0.05);
     this.mouseCurrent.y = THREE.MathUtils.lerp(this.mouseCurrent.y, this.mouseTarget.y, 0.05);
 
+    // Calculate scroll velocity for glitch effects
+    this.scrollVelocity = Math.abs(this.scrollCurrent - this.scrollPrevious);
+    this.scrollPrevious = this.scrollCurrent;
+
+    // Camera dolly zoom (0-50% scroll only)
+    const scrollThreshold = this.config.camera.scrollThreshold;
+    const scrollForCamera = Math.min(this.scrollCurrent / scrollThreshold, 1.0);
+    const easedScroll = this.easeOutCubic(scrollForCamera);
+    
+    const targetZ = THREE.MathUtils.lerp(
+      this.config.camera.zStart,
+      this.config.camera.zEnd,
+      easedScroll
+    );
+    this.camera.position.z = THREE.MathUtils.lerp(this.camera.position.z, targetZ, 0.05);
+
+    // Subtle mouse parallax on plane
+    this.plane.position.x = this.mouseCurrent.x * 0.2;
+    this.plane.position.y = this.mouseCurrent.y * 0.2;
+
+    // Calculate chromatic aberration (scroll + velocity + audio)
+    const scrollAberration = THREE.MathUtils.lerp(
+      this.config.effects.chromaticAberration.base,
+      this.config.effects.chromaticAberration.scrollMax,
+      scrollForCamera
+    );
+    
+    const velocityAberration = this.scrollVelocity > this.config.effects.scrollVelocity.threshold
+      ? this.scrollVelocity * this.config.effects.scrollVelocity.multiplier
+      : 0;
+    
+    const audioAberration = audio01 * this.config.effects.chromaticAberration.audioMax;
+    
+    const totalAberration = scrollAberration + velocityAberration + audioAberration;
+
+    // Calculate UV distortion (scroll + audio)
+    const scrollDistortion = THREE.MathUtils.lerp(
+      this.config.effects.uvDistortion.base,
+      this.config.effects.uvDistortion.scrollMax,
+      scrollForCamera
+    );
+    
+    const audioDistortion = audio01 * this.config.effects.uvDistortion.audioMax;
+    const totalDistortion = scrollDistortion + audioDistortion;
+
     // Update shader uniforms
     this.material.uniforms.uTime.value = timeS;
     this.material.uniforms.uScroll.value = this.scrollCurrent;
+    this.material.uniforms.uScrollVelocity.value = this.scrollVelocity;
     this.material.uniforms.uAudio.value = THREE.MathUtils.lerp(
       this.material.uniforms.uAudio.value,
       audio01,
       0.1
     );
-
-    // Mesh movement based on scroll path
-    const pathX = Math.cos(this.scrollCurrent * Math.PI * 1.5) * 2.5;
-    this.mesh.position.x = pathX + (this.mouseCurrent.x * 0.5);
-    this.mesh.position.y = this.mouseCurrent.y * 0.5;
-
-    // Mesh rotation
-    this.mesh.rotation.y = timeS * 0.1 + (this.scrollCurrent * Math.PI);
-    this.mesh.rotation.x = this.mouseCurrent.y * 0.5;
-
-    // Mesh scale based on scroll (grows at the end)
-    const scale = 1 + this.smoothstep(0.8, 1.0, this.scrollCurrent) * 0.5;
-    this.mesh.scale.set(scale, scale, scale);
-
-    // Particle rotation and vertical movement
-    if (!this.config.performance.reduceMotion) {
-      this.particles.rotation.y = timeS * 0.02 + this.scrollCurrent * 0.2;
-      this.particles.position.y = this.scrollCurrent * 5;
-    }
+    this.material.uniforms.uChromaticAberration.value = totalAberration;
+    this.material.uniforms.uUVDistortion.value = totalDistortion;
   }
 
   /**
@@ -223,25 +265,23 @@ export class SceneManager {
     
     this.isDisposed = true;
 
-    // Dispose geometries
-    if (this.mesh.geometry) {
-      this.mesh.geometry.dispose();
-    }
-    if (this.particles.geometry) {
-      this.particles.geometry.dispose();
+    // Dispose texture
+    if (this.texture) {
+      this.texture.dispose();
     }
 
-    // Dispose materials
-    if (this.mesh.material) {
-      (this.mesh.material as THREE.Material).dispose();
+    // Dispose geometry
+    if (this.plane.geometry) {
+      this.plane.geometry.dispose();
     }
-    if (this.particles.material) {
-      (this.particles.material as THREE.Material).dispose();
+
+    // Dispose material
+    if (this.plane.material) {
+      (this.plane.material as THREE.Material).dispose();
     }
 
     // Remove from scene
-    this.scene.remove(this.mesh);
-    this.scene.remove(this.particles);
+    this.scene.remove(this.plane);
 
     // Dispose renderer
     this.renderer.dispose();

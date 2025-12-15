@@ -1,5 +1,84 @@
 # Changelog - Real-Time Music Regulator
 
+## [1.1.0] - 2025-12-15
+
+### Added
+- **Portfolio Scene V2 - Shopify-Inspired Transformation** (Cinematic Texture-Based Experience):
+  - **Complete Architecture Overhaul**:
+    - Removed particle system entirely for cleaner, focused visual
+    - Replaced IcosahedronGeometry with PlaneGeometry for image display
+    - Implemented texture loading with THREE.TextureLoader
+    - Added fallback gradient texture with helpful messaging
+  
+  - **Shader System Rewrite** (`webgl/shaders.ts`):
+    - **Vertex Shader**: Subtle wave displacement on plane (audio-reactive)
+    - **Fragment Shader**: 
+      - Texture sampling with UV distortion (liquid ripple effect)
+      - Chromatic aberration for elegant glitch aesthetic
+      - Simplex 2D noise for organic distortion
+      - Cinematic vignette effect
+      - Audio-reactive color accents on edges
+  
+  - **Camera Dolly Animation** (Shopify-Style):
+    - Zooms from z=3.5 (tight crop on headphones) to z=8.0 (full reveal)
+    - Animation occurs during first 50% of scroll only
+    - Locks at 50% scroll for stable reading experience
+    - Cubic ease-out for smooth, natural deceleration
+    - Mouse parallax for subtle depth interaction
+  
+  - **Elegant Glitch Effects**:
+    - **Chromatic Aberration**: 
+      - Base: 0.0008 (very subtle at rest)
+      - Scroll max: 0.002 (gentle during movement)
+      - Audio max: 0.003 (slight pulse on peaks)
+    - **UV Distortion**:
+      - Base: 0.02 (minimal ripple)
+      - Scroll max: 0.05 (elegant wave)
+      - Audio max: 0.08 (responsive but refined)
+    - **Scroll Velocity**: Tracks fast scrolling for additional glitch intensity
+  
+  - **Configuration Updates** (`webgl/config.ts`):
+    - New `texture` config: path, aspectRatio (16:9), dimensions
+    - New `camera` config: zStart, zEnd, scrollThreshold (0.5)
+    - New `effects` config: chromaticAberration, uvDistortion, scrollVelocity
+    - Removed particle-related configuration
+    - Mobile optimization with reduced effect intensity
+  
+  - **SceneManager V2** (`webgl/SceneManager.ts`):
+    - Complete rewrite focused on texture-based plane rendering
+    - Texture loading with error handling and fallback
+    - Scroll velocity tracking for glitch effects
+    - Effect intensity calculation (scroll + velocity + audio)
+    - Proper resource disposal including texture cleanup
+
+### Technical Implementation
+- Landscape image format (16:9) for cinematic presentation
+- Image path: `/img/HeadphonesGirl.png`
+- Smooth interpolation using THREE.MathUtils.lerp throughout
+- Cubic easing function for camera movement
+- Multiple effect layers (aberration + distortion) for depth
+- Performance-optimized shaders with 2D noise instead of 3D
+
+### Design Philosophy
+- "Shopify Editions Winter 2026" inspired sticky visual system
+- Camera reveals subject gradually, then locks for content focus
+- Elegant, subtle effects enhance without overwhelming
+- Audio reactivity adds dynamic energy to static image
+- Cinematic vignette creates professional polish
+
+### User Experience Flow
+- **0% Scroll**: Tight crop on headphones, mysterious opening
+- **25% Scroll**: Face visible, gentle chromatic aberration
+- **50% Scroll**: Full character revealed, camera LOCKS
+- **50-100%**: Stable visual, content scrolls over, subtle audio reactivity
+
+### Performance Optimizations
+- No particles = significant performance improvement
+- Simpler geometry (plane vs icosahedron) = faster rendering
+- 2D noise in shaders = reduced GPU load
+- Mobile-specific effect intensity reduction
+- Proper texture disposal prevents memory leaks
+
 ## [1.0.2] - 2025-12-15
 
 ### Added
