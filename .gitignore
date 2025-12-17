@@ -60,3 +60,6 @@ temp/
 
 # Miscellaneous
 .turbo
+
+# Ignored img
+portfolio/public/img/headphones-girl-fg_3.png

@@ -1,5 +1,40 @@
 # Changelog - Real-Time Music Regulator
 
+## [1.2.0] - 2025-12-17
+
+### Fixed
+- **Portfolio Scene V2 - Multi-Layer Transparency Fix**:
+  - **Shader Alpha Handling** (`webgl/shaders.ts`):
+    - Modified fragment shader to properly preserve texture alpha channel
+    - Changed from RGB to RGBA texture sampling
+    - Extract alpha from center sample: `float alpha = texG.a`
+    - Output with alpha: `gl_FragColor = vec4(color, alpha)`
+  
+  - **Material Blending** (`webgl/SceneManager.ts`):
+    - Added explicit `blending: THREE.NormalBlending` to ShaderMaterial
+    - Ensures proper alpha compositing between layers
+    - Background layer now visible through transparent foreground areas
+  
+  - **Texture Format**:
+    - Explicitly set `texture.format = THREE.RGBAFormat` on load
+    - Ensures alpha channel is properly read from PNG files
+
+### Added
+- **Parallax Layering Guide** (`memlog/parallax_layering_guide.md`):
+  - Comprehensive guide for creating multi-layer parallax images
+  - Photoshop/GIMP layer separation tutorials (3 methods)
+  - PNG export requirements and settings
+  - Configuration examples and best practices
+  - Troubleshooting section for common issues
+  - Parallax speed and z-position guidelines
+  - File naming conventions and testing checklist
+
+### Technical Details
+- Issue: Foreground transparency not showing background layer (black instead)
+- Root Cause: Shader was discarding alpha channel, using hardcoded alpha=1.0
+- Solution: Preserve alpha through chromatic aberration sampling and output
+- Result: Clean multi-layer parallax without distortion, background visible through foreground
+
 ## [1.1.0] - 2025-12-15
 
 ### Added

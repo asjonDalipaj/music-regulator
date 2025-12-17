@@ -559,6 +559,138 @@ portfolio/
 
 ---
 
-**Last Updated**: 2025-12-15  
-**Version**: 1.0.0  
-**Total Modules**: 29 (6 TypeScript core + 1 JSON + 10 Portfolio v1 components + 12 Portfolio Scene V2 modules)
+---
+
+## Portfolio Scene V2 - Multi-Layer Parallax System (v1.2.0)
+
+### Image Assets
+
+#### `portfolio/public/img/headphones-girl-bg.png`
+- **Type**: PNG Image Asset (Background Layer)
+- **Dependencies**: None
+- **Consumed By**: `webgl/config.ts`, `webgl/SceneManager.ts`
+- **Features**:
+  - Transparent PNG with alpha channel
+  - Background elements (windows, walls, distant objects)
+  - RGBA format for proper transparency
+- **Parallax Config**: Speed 0.4, Z-position -0.5
+
+#### `portfolio/public/img/headphones-girl-fg.png`
+- **Type**: PNG Image Asset (Foreground Layer)
+- **Dependencies**: None
+- **Consumed By**: `webgl/config.ts`, `webgl/SceneManager.ts`
+- **Features**:
+  - Transparent PNG with alpha channel
+  - Foreground elements (main subject, close objects)
+  - RGBA format for proper transparency
+- **Parallax Config**: Speed 1.0, Z-position 0.0
+
+### Documentation
+
+#### `memlog/parallax_layering_guide.md`
+- **Type**: Technical Documentation
+- **Dependencies**: None
+- **Provides**: Comprehensive guide for creating multi-layer parallax images
+- **Topics**:
+  - Photoshop/GIMP layer separation (3 methods)
+  - PNG export requirements and settings
+  - Configuration examples and best practices
+  - Troubleshooting common issues
+  - Parallax speed and z-position guidelines
+  - Testing checklist
+- **Size**: ~280 lines
+
+### Updated Components (v1.2.0)
+
+#### `portfolio/features/portfolioScene/webgl/config.ts` (Updated)
+- **Changes**: 
+  - Added multi-layer texture configuration
+  - Layer-specific parallax speeds and z-positions
+  - `disableDistortion` flag per layer
+- **Features**:
+  - Layer 0 (background): parallaxSpeed 0.4, zPosition -0.5
+  - Layer 1 (foreground): parallaxSpeed 1.0, zPosition 0.0
+  - Proper aspect ratio and sizing
+
+#### `portfolio/features/portfolioScene/webgl/shaders.ts` (Updated)
+- **Changes**:
+  - Modified fragment shader to preserve alpha channel
+  - Changed from RGB to RGBA texture sampling
+  - Extract alpha from center sample: `float alpha = texG.a`
+  - Output with alpha: `gl_FragColor = vec4(color, alpha)`
+- **Features**:
+  - Proper transparency handling
+  - Alpha-aware chromatic aberration
+  - Clean multi-layer compositing
+
+#### `portfolio/features/portfolioScene/webgl/SceneManager.ts` (Updated)
+- **Changes**:
+  - Added multi-layer texture loading
+  - Layer-specific mesh creation with z-positioning
+  - Added `blending: THREE.NormalBlending` to materials
+  - Explicit `texture.format = THREE.RGBAFormat`
+  - Layer-specific parallax speed application
+- **Features**:
+  - Multiple mesh management
+  - Independent layer animation
+  - Proper alpha compositing
+  - Per-layer update logic
+
+### Integration: Multi-Layer Parallax
+
+```
+┌─────────────────────────────┐
+│ Image Assets (PNG + Alpha) │
+│ - headphones-girl-bg.png    │
+│ - headphones-girl-fg.png  │
+└────────────┬────────────────┘
+             │
+             ▼
+┌─────────────────────────────┐
+│ config.ts                   │
+│ - Layer definitions         │
+│ - Parallax speeds           │
+│ - Z-positions               │
+└────────────┬────────────────┘
+             │
+             ▼
+┌─────────────────────────────┐
+│ SceneManager.ts             │
+│ - Load textures (RGBA)      │
+│ - Create meshes per layer   │
+│ - Apply z-positions         │
+│ - Animate with diff speeds  │
+└────────────┬────────────────┘
+             │
+             ▼
+┌─────────────────────────────┐
+│ shaders.ts                  │
+│ - Preserve alpha channel    │
+│ - Alpha-aware effects       │
+│ - Proper blending           │
+└─────────────────────────────┘
+```
+
+### Technical Implementation
+
+1. **Layer Separation**: Manual Photoshop/GIMP selection and export
+2. **Transparency**: PNG-24/32 with alpha channel preserved
+3. **Configuration**: Layer array in config.ts with speed/position
+4. **Loading**: THREE.TextureLoader with RGBA format
+5. **Rendering**: Separate meshes with z-positioning
+6. **Animation**: Layer-specific parallax speeds on scroll/mouse
+7. **Blending**: NormalBlending for proper alpha compositing
+
+### Key Features
+
+- **No Distortion**: Clean parallax without warping (`disableDistortion: true`)
+- **Depth Perception**: Different parallax speeds create depth
+- **Transparency**: Foreground reveals background through alpha
+- **Performance**: Optimized multi-layer rendering
+- **Configurability**: Easy to add more layers via config
+
+---
+
+**Last Updated**: 2025-12-17  
+**Version**: 1.2.0  
+**Total Modules**: 31 (6 TypeScript core + 1 JSON + 10 Portfolio v1 components + 12 Portfolio Scene V2 modules + 2 image assets)

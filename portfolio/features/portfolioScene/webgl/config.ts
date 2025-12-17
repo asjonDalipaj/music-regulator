@@ -3,6 +3,13 @@
  * Centralized configuration for the Three.js scene
  */
 
+export interface TextureLayer {
+  path: string;
+  parallaxSpeed: number;  // 0.0 - 1.0+ (lower = slower/farther)
+  zPosition: number;      // Depth position (negative = behind, positive = front)
+  disableDistortion?: boolean;  // Optional: disable UV distortion for clean rendering
+}
+
 export interface SceneConfig {
   colors: {
     bg: string;
@@ -17,7 +24,7 @@ export interface SceneConfig {
     scrollThreshold: number; // Scroll % where camera stops (0.5 = 50%)
   };
   texture: {
-    path: string;
+    layers: TextureLayer[];
     aspectRatio: number;
     width: number;
     height: number;
@@ -61,21 +68,34 @@ export const sceneConfig: SceneConfig = {
     scrollThreshold: 0.5 // Camera locks at 50% scroll
   },
   texture: {
-    path: '/img/HeadphonesGirl2.png',
+    layers: [
+      {
+        path: '/img/headphones-girl-bg.png',  // Background layer (window)
+        parallaxSpeed: 0.4,  // Moves slower - appears farther away
+        zPosition: -0.5,     // Positioned behind foreground
+        disableDistortion: true  // No distortion for clean multi-layer effect
+      },
+      {
+        path: '/img/headphones-girl-fg.png',  // Foreground layer (girl + chair + headphones)
+        parallaxSpeed: 1.0,  // Moves at full speed - appears closer
+        zPosition: 0.0,      // Positioned in front
+        disableDistortion: true  // No distortion for clean multi-layer effect
+      }
+    ],
     aspectRatio: 16 / 9,  // Landscape format
     width: 6.0,           // Wide format for landscape
     height: 3.375         // Maintains 16:9 ratio
   },
   effects: {
     chromaticAberration: {
-      base: 0.0008,       // Very subtle at rest
-      scrollMax: 0.002,   // Gentle during scroll
-      audioMax: 0.003     // Slight pulse on audio
+      base: 0.0,          // Disabled for clean multi-layer parallax
+      scrollMax: 0.0,     // No scroll aberration
+      audioMax: 0.001     // Minimal audio pulse only
     },
     uvDistortion: {
-      base: 0.02,         // Minimal ripple
-      scrollMax: 0.05,    // Elegant wave during movement
-      audioMax: 0.08      // Responsive but refined
+      base: 0.0,          // Disabled for clean parallax
+      scrollMax: 0.0,     // No scroll distortion
+      audioMax: 0.0       // No audio distortion
     },
     scrollVelocity: {
       threshold: 0.01,    // Only on fast scrolling

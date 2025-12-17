@@ -13,9 +13,9 @@ export class SceneManager {
   private renderer: THREE.WebGLRenderer;
   private scene: THREE.Scene;
   private camera: THREE.PerspectiveCamera;
-  private plane: THREE.Mesh;
-  private material: THREE.ShaderMaterial;
-  private texture: THREE.Texture | null = null;
+  private planes: THREE.Mesh[] = [];
+  private materials: THREE.ShaderMaterial[] = [];
+  private textures: (THREE.Texture | null)[] = [];
   private textureLoader: THREE.TextureLoader;
   
   // State
@@ -57,42 +57,45 @@ export class SceneManager {
     // Create texture loader
     this.textureLoader = new THREE.TextureLoader();
 
-    // Create plane (will be textured after loading)
-    this.plane = this.createPlane();
-    this.scene.add(this.plane);
+    // Create planes for each layer (will be textured after loading)
+    this.createPlanes();
 
-    // Store material reference for updates
-    this.material = this.plane.material as THREE.ShaderMaterial;
-
-    // Load texture asynchronously
-    this.loadTexture();
+    // Load textures asynchronously for all layers
+    this.loadTextures();
   }
 
   /**
-   * Load the hero image texture
+   * Load textures for all layers
    */
-  private loadTexture(): void {
-    this.textureLoader.load(
-      this.config.texture.path,
-      (texture) => {
-        this.texture = texture;
-        this.material.uniforms.uTexture.value = texture;
-        this.material.needsUpdate = true;
-        console.log('✅ Texture loaded successfully:', this.config.texture.path);
-      },
-      undefined,
-      (error) => {
-        console.error('❌ Error loading texture:', error);
-        // Create fallback gradient texture
-        this.createFallbackTexture();
-      }
-    );
+  private loadTextures(): void {
+    this.config.texture.layers.forEach((layer, index) => {
+      this.textureLoader.load(
+        layer.path,
+        (texture) => {
+          // Enable proper alpha channel support
+          texture.format = THREE.RGBAFormat;
+          texture.needsUpdate = true;
+          
+          this.textures[index] = texture;
+          this.materials[index].uniforms.uTexture.value = texture;
+          this.materials[index].needsUpdate = true;
+          console.log(`✅ Layer ${index} texture loaded:`, layer.path);
+        },
+        undefined,
+        (error) => {
+          console.error(`❌ Error loading layer ${index} texture:`, error);
+          // Create fallback gradient texture for this layer
+          this.createFallbackTexture(index);
+        }
+      );
+    });
   }
 
   /**
    * Create a fallback gradient texture if image fails to load
    */
-  private createFallbackTexture(): void {
+  private createFallbackTexture(layerIndex: number): void {
+    const layer = this.config.texture.layers[layerIndex];
     const canvas = document.createElement('canvas');
     canvas.width = 1024;
     canvas.height = 576; // 16:9 ratio
@@ -109,45 +112,62 @@ export class SceneManager {
     
     // Add text
     ctx.fillStyle = '#ffffff';
-    ctx.font = '48px sans-serif';
+    ctx.font = '36px sans-serif';
     ctx.textAlign = 'center';
-    ctx.fillText('Add your image here:', canvas.width / 2, canvas.height / 2 - 30);
-    ctx.fillText(this.config.texture.path, canvas.width / 2, canvas.height / 2 + 30);
+    ctx.fillText(`Layer ${layerIndex} image missing:`, canvas.width / 2, canvas.height / 2 - 30);
+    ctx.fillText(layer.path, canvas.width / 2, canvas.height / 2 + 30);
     
-    this.texture = new THREE.CanvasTexture(canvas);
-    this.material.uniforms.uTexture.value = this.texture;
-    this.material.needsUpdate = true;
+    this.textures[layerIndex] = new THREE.CanvasTexture(canvas);
+    this.materials[layerIndex].uniforms.uTexture.value = this.textures[layerIndex];
+    this.materials[layerIndex].needsUpdate = true;
   }
 
   /**
-   * Create the main image plane with shaders
+   * Create all image planes with shaders (one per layer)
    */
-  private createPlane(): THREE.Mesh {
-    const geometry = new THREE.PlaneGeometry(
-      this.config.texture.width,
-      this.config.texture.height,
-      32,  // Width segments for smooth distortion
-      32   // Height segments
-    );
+  private createPlanes(): void {
+    this.config.texture.layers.forEach((layer, index) => {
+      const geometry = new THREE.PlaneGeometry(
+        this.config.texture.width,
+        this.config.texture.height,
+        32,  // Width segments for smooth distortion
+        32   // Height segments
+      );
 
-    const material = new THREE.ShaderMaterial({
-      vertexShader,
-      fragmentShader,
-      uniforms: {
-        uTime: { value: 0 },
-        uScroll: { value: 0 },
-        uAudio: { value: 0 },
-        uScrollVelocity: { value: 0 },
-        uTexture: { value: null }, // Will be set when texture loads
-        uColorA: { value: new THREE.Color(this.config.colors.accentA) },
-        uColorB: { value: new THREE.Color(this.config.colors.accentB) },
-        uChromaticAberration: { value: this.config.effects.chromaticAberration.base },
-        uUVDistortion: { value: this.config.effects.uvDistortion.base },
-      },
-      transparent: false,
+      const material = new THREE.ShaderMaterial({
+        vertexShader,
+        fragmentShader,
+        uniforms: {
+          uTime: { value: 0 },
+          uScroll: { value: 0 },
+          uAudio: { value: 0 },
+          uScrollVelocity: { value: 0 },
+          uTexture: { value: null }, // Will be set when texture loads
+          uColorA: { value: new THREE.Color(this.config.colors.accentA) },
+          uColorB: { value: new THREE.Color(this.config.colors.accentB) },
+          uChromaticAberration: { value: this.config.effects.chromaticAberration.base },
+          uUVDistortion: { value: this.config.effects.uvDistortion.base },
+        },
+        transparent: true,               // Enable transparency for layering
+        side: THREE.DoubleSide,          // Render both sides
+        depthWrite: false,               // Prevent z-fighting between layers
+        depthTest: true,                 // Enable depth testing for proper layering
+        blending: THREE.NormalBlending,  // Use normal alpha blending
+      });
+
+      const plane = new THREE.Mesh(geometry, material);
+      
+      // Position layer at its defined Z-depth
+      plane.position.z = layer.zPosition;
+      
+      // Store references
+      this.planes.push(plane);
+      this.materials.push(material);
+      this.textures.push(null);
+      
+      // Add to scene
+      this.scene.add(plane);
     });
-
-    return new THREE.Mesh(geometry, material);
   }
 
   /**
@@ -207,9 +227,16 @@ export class SceneManager {
     );
     this.camera.position.z = THREE.MathUtils.lerp(this.camera.position.z, targetZ, 0.05);
 
-    // Subtle mouse parallax on plane
-    this.plane.position.x = this.mouseCurrent.x * 0.2;
-    this.plane.position.y = this.mouseCurrent.y * 0.2;
+    // Apply parallax motion to each layer based on their parallaxSpeed
+    this.planes.forEach((plane, index) => {
+      const layer = this.config.texture.layers[index];
+      
+      // Vertical parallax (scroll-based) - different speed per layer
+      plane.position.y = this.scrollCurrent * layer.parallaxSpeed * 2.0;
+      
+      // Horizontal parallax (mouse-based) - different speed per layer
+      plane.position.x = this.mouseCurrent.x * layer.parallaxSpeed * 0.3;
+    });
 
     // Calculate chromatic aberration (scroll + velocity + audio)
     const scrollAberration = THREE.MathUtils.lerp(
@@ -236,17 +263,19 @@ export class SceneManager {
     const audioDistortion = audio01 * this.config.effects.uvDistortion.audioMax;
     const totalDistortion = scrollDistortion + audioDistortion;
 
-    // Update shader uniforms
-    this.material.uniforms.uTime.value = timeS;
-    this.material.uniforms.uScroll.value = this.scrollCurrent;
-    this.material.uniforms.uScrollVelocity.value = this.scrollVelocity;
-    this.material.uniforms.uAudio.value = THREE.MathUtils.lerp(
-      this.material.uniforms.uAudio.value,
-      audio01,
-      0.1
-    );
-    this.material.uniforms.uChromaticAberration.value = totalAberration;
-    this.material.uniforms.uUVDistortion.value = totalDistortion;
+    // Update shader uniforms for all layers
+    this.materials.forEach((material) => {
+      material.uniforms.uTime.value = timeS;
+      material.uniforms.uScroll.value = this.scrollCurrent;
+      material.uniforms.uScrollVelocity.value = this.scrollVelocity;
+      material.uniforms.uAudio.value = THREE.MathUtils.lerp(
+        material.uniforms.uAudio.value,
+        audio01,
+        0.1
+      );
+      material.uniforms.uChromaticAberration.value = totalAberration;
+      material.uniforms.uUVDistortion.value = totalDistortion;
+    });
   }
 
   /**
@@ -265,23 +294,33 @@ export class SceneManager {
     
     this.isDisposed = true;
 
-    // Dispose texture
-    if (this.texture) {
-      this.texture.dispose();
-    }
+    // Dispose all textures
+    this.textures.forEach((texture) => {
+      if (texture) {
+        texture.dispose();
+      }
+    });
 
-    // Dispose geometry
-    if (this.plane.geometry) {
-      this.plane.geometry.dispose();
-    }
+    // Dispose all planes
+    this.planes.forEach((plane) => {
+      // Dispose geometry
+      if (plane.geometry) {
+        plane.geometry.dispose();
+      }
 
-    // Dispose material
-    if (this.plane.material) {
-      (this.plane.material as THREE.Material).dispose();
-    }
+      // Dispose material
+      if (plane.material) {
+        (plane.material as THREE.Material).dispose();
+      }
 
-    // Remove from scene
-    this.scene.remove(this.plane);
+      // Remove from scene
+      this.scene.remove(plane);
+    });
+
+    // Clear arrays
+    this.planes = [];
+    this.materials = [];
+    this.textures = [];
 
     // Dispose renderer
     this.renderer.dispose();

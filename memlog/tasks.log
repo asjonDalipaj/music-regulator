@@ -202,6 +202,49 @@ None currently - all Phase 1 objectives completed successfully.
 
 ---
 
-**Last Updated**: 2025-08-12 13:17  
-**Current Phase**: Phase 4 In Progress - Portfolio Implementation (Week 2 Complete: Hero + Core Sections)  
-**Overall Progress**: ~75% complete (Foundation built, Hero + About + Skills sections complete with animations)
+---
+
+## Latest Work - Multi-Layer Parallax Implementation (2025-12-17)
+
+### DONE ✅ - Portfolio Scene V2 Multi-Layer Parallax
+- [x] Identified transparency issue with multi-layer rendering
+  - Background layer not visible through foreground (showing black instead)
+  - Root cause: Shader discarding alpha channel, using hardcoded alpha=1.0
+- [x] Fixed shader alpha handling (`webgl/shaders.ts`)
+  - Changed from RGB to RGBA texture sampling
+  - Extract alpha from center sample: `float alpha = texG.a`
+  - Output with alpha: `gl_FragColor = vec4(color, alpha)`
+- [x] Fixed material blending (`webgl/SceneManager.ts`)
+  - Added explicit `blending: THREE.NormalBlending`
+  - Set `texture.format = THREE.RGBAFormat` on load
+  - Ensures proper alpha compositing between layers
+- [x] Created comprehensive parallax layering guide (`memlog/parallax_layering_guide.md`)
+  - Photoshop/GIMP layer separation tutorials (3 methods)
+  - PNG export requirements and best practices
+  - Configuration examples and troubleshooting
+  - Parallax speed and z-position guidelines
+- [x] Updated multi-layer configuration (`webgl/config.ts`)
+  - Layer 0 (background): parallaxSpeed 0.4, zPosition -0.5
+  - Layer 1 (foreground): parallaxSpeed 1.0, zPosition 0.0
+  - `disableDistortion` flag per layer
+- [x] Tested in browser - confirmed both layers visible with clean parallax
+- [x] Updated documentation
+  - [x] changelog.md (v1.2.0 entry)
+  - [x] file_dependencies.md (multi-layer parallax section)
+  - [x] tasks.log (this file)
+
+### Key Technical Achievements
+- **Clean Multi-Layer Parallax**: No distortion, proper depth perception
+- **Alpha Transparency**: Background visible through foreground cutouts
+- **Performance**: Optimized multi-layer rendering with proper disposal
+- **Documentation**: Complete guide for future image layering work
+
+### Image Assets Added
+- `portfolio/public/img/headphones-girl-bg.png` - Background layer
+- `portfolio/public/img/headphones-girl-fg.png` - Foreground layer
+
+---
+
+**Last Updated**: 2025-12-17 18:28  
+**Current Phase**: Phase 4 In Progress - Portfolio Scene V2 Multi-Layer Parallax Complete  
+**Overall Progress**: ~80% complete (Multi-layer parallax system fully functional with documentation)

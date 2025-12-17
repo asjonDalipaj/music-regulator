@@ -92,12 +92,13 @@ export const fragmentShader = `
         // Chromatic Aberration (elegant glitch)
         float aberration = uChromaticAberration;
         
-        // Sample RGB channels separately
-        float r = texture2D(uTexture, uv + vec2(aberration, 0.0)).r;
-        float g = texture2D(uTexture, uv).g;
-        float b = texture2D(uTexture, uv - vec2(aberration, 0.0)).b;
+        // Sample RGBA channels separately (preserve alpha for transparency)
+        vec4 texR = texture2D(uTexture, uv + vec2(aberration, 0.0));
+        vec4 texG = texture2D(uTexture, uv);
+        vec4 texB = texture2D(uTexture, uv - vec2(aberration, 0.0));
         
-        vec3 color = vec3(r, g, b);
+        vec3 color = vec3(texR.r, texG.g, texB.b);
+        float alpha = texG.a; // Use center sample for alpha
         
         // Subtle vignette for cinematic feel
         vec2 vignetteUV = vUv * (1.0 - vUv.yx);
@@ -111,6 +112,6 @@ export const fragmentShader = `
         vec3 accentColor = mix(uColorA, uColorB, sin(uTime * 0.5) * 0.5 + 0.5);
         color += accentColor * edgeFactor * uAudio * 0.1;
         
-        gl_FragColor = vec4(color, 1.0);
+        gl_FragColor = vec4(color, alpha);
     }
 `;
