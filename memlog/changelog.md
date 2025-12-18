@@ -1,5 +1,40 @@
 # Changelog - Real-Time Music Regulator
 
+## [1.3.0] - 2025-12-18
+
+### Changed
+- **Portfolio V2 Promoted to Main Page**:
+  - Updated `portfolio/app/page.tsx` to render PortfolioScene as main landing page
+  - Portfolio V2 now accessible at root URL `http://localhost:3000`
+  - Removed old Renaissance-themed portfolio components entirely
+  - Deleted `/portfolio-v2` route directory (no longer needed)
+  
+### Removed
+- **Old Portfolio Components Cleanup**:
+  - Deleted `components/Header.tsx` (old navigation)
+  - Deleted `components/Footer.tsx` (old footer)
+  - Deleted `components/Hero.tsx` (old hero section)
+  - Deleted `components/about/` directory (AboutMe.tsx, Milestone.tsx)
+  - Deleted `components/skills/` directory (Skills.tsx, SkillCard.tsx, SkillBar.tsx)
+  - Deleted `components/decorative/` directory (CornerFlourish.tsx, DecorativeDivider.tsx)
+  - Deleted `components/animations/ScrollReveal.tsx`
+  - Deleted `components/effects/FluidDistortion.tsx`
+  - Deleted `components/hero/` directory (animations.ts, RenaissanceDecorations.tsx, TypewriterPoetry.tsx)
+  - Deleted `app/portfolio-v2/` directory (page.tsx, v1 subdirectory)
+  - Deleted `public/hero-image.jpg` (unused asset)
+
+### Technical Implementation
+- Clean codebase with no redundant routes or components
+- Single portfolio implementation (PortfolioScene)
+- Simplified routing structure
+- Reduced bundle size by removing unused components
+
+### Result
+- ✅ Portfolio V2 (PortfolioScene) is now the main portfolio
+- ✅ Accessible at root URL without `/portfolio-v2` prefix
+- ✅ All old components removed for clean codebase
+- ✅ Multi-layer parallax WebGL experience as primary landing page
+
 ## [1.2.0] - 2025-12-17
 
 ### Fixed

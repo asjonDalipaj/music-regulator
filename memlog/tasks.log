@@ -204,7 +204,37 @@ None currently - all Phase 1 objectives completed successfully.
 
 ---
 
-## Latest Work - Multi-Layer Parallax Implementation (2025-12-17)
+## Latest Work - Portfolio V2 Promoted to Main (2025-12-18)
+
+### DONE ✅ - Portfolio V2 Migration Complete
+- [x] Updated main page route (`portfolio/app/page.tsx`)
+  - Changed from old Renaissance portfolio to PortfolioScene
+  - Portfolio V2 now accessible at root URL `http://localhost:3000`
+- [x] Deleted all old portfolio components
+  - Removed Header.tsx, Footer.tsx, Hero.tsx
+  - Removed about/ directory (AboutMe.tsx, Milestone.tsx)
+  - Removed skills/ directory (Skills.tsx, SkillCard.tsx, SkillBar.tsx)
+  - Removed decorative/ directory (CornerFlourish.tsx, DecorativeDivider.tsx)
+  - Removed animations/ScrollReveal.tsx
+  - Removed effects/FluidDistortion.tsx
+  - Removed hero/ directory (animations.ts, RenaissanceDecorations.tsx, TypewriterPoetry.tsx)
+- [x] Removed portfolio-v2 route directory
+  - Deleted app/portfolio-v2/ entirely (no longer needed)
+- [x] Cleaned up unused assets
+  - Deleted public/hero-image.jpg
+- [x] Updated documentation
+  - Added v1.3.0 entry to changelog.md
+  - Updated tasks.log with migration details
+
+### Result
+- ✅ Portfolio V2 (PortfolioScene with multi-layer parallax) is now the main portfolio
+- ✅ Clean codebase with no redundant components or routes
+- ✅ Simplified routing structure
+- ✅ Reduced bundle size
+
+---
+
+## Previous Work - Multi-Layer Parallax Implementation (2025-12-17)
 
 ### DONE ✅ - Portfolio Scene V2 Multi-Layer Parallax
 - [x] Identified transparency issue with multi-layer rendering

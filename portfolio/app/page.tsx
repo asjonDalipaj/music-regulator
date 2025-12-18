@@ -1,38 +1,10 @@
-import Header from "@/components/Header";
-import Hero from "@/components/Hero";
-import AboutMe from "@/components/about/AboutMe";
-import Skills from "@/components/skills/Skills";
-import Footer from "@/components/Footer";
-import FluidDistortion from "@/components/effects/FluidDistortion";
+/**
+ * Main Portfolio Page
+ * Entry point for the portfolio (Portfolio V2 - PortfolioScene)
+ */
+
+import PortfolioScene from '@/features/portfolioScene/PortfolioScene';
 
 export default function Home() {
-  return (
-    <div className="relative min-h-screen">
-      {/* Fluid Distortion Effect - Full Page */}
-      <FluidDistortion intensity={1.2} />
-      
-      <Header />
-      <main>
-        <Hero />
-        <AboutMe />
-        <Skills />
-        
-        {/* Placeholder sections - to be built in future iterations */}
-        <section id="projects" className="min-h-screen flex items-center justify-center bg-cream-dark">
-          <div className="text-center">
-            <h2 className="font-playfair text-4xl font-bold text-burgundy mb-4">Featured Projects</h2>
-            <p className="font-inter text-charcoal">Coming soon...</p>
-          </div>
-        </section>
-
-        <section id="contact" className="min-h-screen flex items-center justify-center bg-cream">
-          <div className="text-center">
-            <h2 className="font-playfair text-4xl font-bold text-burgundy mb-4">Get In Touch</h2>
-            <p className="font-inter text-charcoal">Coming soon...</p>
-          </div>
-        </section>
-      </main>
-      <Footer />
-    </div>
-  );
+  return <PortfolioScene />;
 }
