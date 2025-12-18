@@ -1,5 +1,86 @@
 # Changelog - Real-Time Music Regulator
 
+## [1.4.0] - 2025-12-18
+
+### Added
+- **3D Parallax Enhancement - Shopify Winter 2026 Style**:
+  - **New Layer Properties** (`webgl/config.ts`):
+    - `rotationIntensity` (0.0-1.0): Controls 3D tilt rotation per layer
+    - `blurAmount` (0.0-1.0): Depth-based blur for atmospheric perspective
+    - `edgeFade` (0.0-1.0): Soft edge vignette to fix pixelation
+  
+  - **Inverse Parallax Implementation**:
+    - Background: `parallaxSpeed: 1.5` (moves MORE for dramatic depth)
+    - Foreground: `parallaxSpeed: 0.5` (moves LESS for proper depth)
+    - Creates correct depth perception with background appearing farther
+  
+  - **3D Rotation & Tilt** (`webgl/SceneManager.ts`):
+    - Layers rotate on X and Y axes following mouse position
+    - Background: `rotationIntensity: 0.8` (strong dramatic tilt)
+    - Foreground: `rotationIntensity: 0.3` (subtle rotation)
+    - Spring-like smooth motion (0.08 lerp speed)
+    - Card-like floating effect with dynamic perspective
+  
+  - **Vertical Mouse Parallax**:
+    - Added Y-axis mouse tracking for true multi-dimensional depth
+    - Different intensities per layer based on `parallaxSpeed`
+    - Creates full 3D interaction (not just horizontal)
+  
+  - **Dynamic Scale Variation**:
+    - Layers subtly scale based on mouse distance from center
+    - Enhances depth perception during interaction
+    - Smooth interpolation prevents jitter
+  
+  - **Enhanced Physics**:
+    - Mouse tracking: Faster lerp (0.12) for snappier response
+    - Rotation: Spring smoothing (0.08) for organic motion
+    - Scale: Smooth interpolation (0.08) prevents popping
+    - Horizontal parallax: 3x increase (1.0 multiplier) for dramatic effect
+
+### Enhanced
+- **Shader System** (`webgl/shaders.ts`):
+  - **Depth-Based Gaussian Blur**:
+    - 9-tap optimized Gaussian kernel
+    - Applied conditionally to background layer only
+    - Creates atmospheric depth of field effect
+    - Background blur: 0.3 intensity
+  
+  - **Edge Fade / Soft Vignette**:
+    - Radial distance calculation from center
+    - Smooth alpha gradient at edges
+    - Fixes foreground pixelation issues
+    - Foreground fade: 0.2 intensity
+  
+  - **New Uniforms**:
+    - `uBlurAmount`: Per-layer blur control
+    - `uEdgeFade`: Per-layer edge fade control
+
+### Technical Implementation
+- Conditional blur rendering (only when `blurAmount > 0.01`)
+- Efficient shader branching for performance
+- Smooth lerp speeds balanced for natural motion
+- Spring physics for organic, responsive interaction
+- GPU-friendly shader optimizations
+
+### Visual Results
+- ✅ Dramatic 3D depth illusion (inverse parallax)
+- ✅ Smooth foreground edges (no pixelation)
+- ✅ 3D rotation following mouse (card effect)
+- ✅ Depth of field (background blur, foreground sharp)
+- ✅ Snappier mouse response with spring physics
+- ✅ Multi-axis parallax (X, Y, scroll combined)
+
+### Performance
+- Optimized 9-tap blur (background only)
+- Minimal GPU overhead from conditional rendering
+- Smooth 60fps motion with interpolation
+- No additional textures or geometry required
+
+### Documentation
+- Created `memlog/3d_parallax_enhancement.md` with comprehensive technical guide
+- Includes configuration details, shader explanations, and performance notes
+- Documents all parallax speed and rotation intensity logic
+
 ## [1.3.0] - 2025-12-18
 
 ### Changed

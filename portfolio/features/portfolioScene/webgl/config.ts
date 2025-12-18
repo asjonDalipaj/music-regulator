@@ -5,9 +5,12 @@
 
 export interface TextureLayer {
   path: string;
-  parallaxSpeed: number;  // 0.0 - 1.0+ (lower = slower/farther)
+  parallaxSpeed: number;  // 0.0 - 1.0+ (lower = slower/farther, HIGHER for inverse parallax)
   zPosition: number;      // Depth position (negative = behind, positive = front)
   disableDistortion?: boolean;  // Optional: disable UV distortion for clean rendering
+  rotationIntensity: number;    // 0.0-1.0 How much layer rotates with mouse (3D tilt effect)
+  blurAmount: number;           // 0.0-1.0 Depth-based blur amount
+  edgeFade: number;             // 0.0-1.0 Soft edge vignette fade (0 = no fade)
 }
 
 export interface SceneConfig {
@@ -71,15 +74,21 @@ export const sceneConfig: SceneConfig = {
     layers: [
       {
         path: '/img/headphones-girl-bg.png',  // Background layer (window)
-        parallaxSpeed: 0.4,  // Moves slower - appears farther away
-        zPosition: -0.5,     // Positioned behind foreground
-        disableDistortion: true  // No distortion for clean multi-layer effect
+        parallaxSpeed: 1.5,        // INVERSE parallax - moves MORE (dramatic depth)
+        zPosition: -0.5,           // Positioned behind foreground
+        disableDistortion: true,   // No distortion for clean multi-layer effect
+        rotationIntensity: 0.8,    // Strong rotation for dramatic 3D tilt
+        blurAmount: 0.3,           // Depth-based blur (distant = blurred)
+        edgeFade: 0.0              // No edge fade for background
       },
       {
         path: '/img/headphones-girl-fg.png',  // Foreground layer (girl + chair + headphones)
-        parallaxSpeed: 1.0,  // Moves at full speed - appears closer
-        zPosition: 0.0,      // Positioned in front
-        disableDistortion: true  // No distortion for clean multi-layer effect
+        parallaxSpeed: 0.5,        // Moves LESS (closer objects move slower)
+        zPosition: 0.0,            // Positioned in front
+        disableDistortion: true,   // No distortion for clean multi-layer effect
+        rotationIntensity: 0.3,    // Subtle rotation (closer = less rotation)
+        blurAmount: 0.0,           // Sharp/clear (closest layer)
+        edgeFade: 0.2              // Soft edge fade to fix pixelation
       }
     ],
     aspectRatio: 16 / 9,  // Landscape format

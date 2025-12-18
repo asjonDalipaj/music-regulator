@@ -147,6 +147,8 @@ export class SceneManager {
           uColorB: { value: new THREE.Color(this.config.colors.accentB) },
           uChromaticAberration: { value: this.config.effects.chromaticAberration.base },
           uUVDistortion: { value: this.config.effects.uvDistortion.base },
+          uBlurAmount: { value: layer.blurAmount },
+          uEdgeFade: { value: layer.edgeFade },
         },
         transparent: true,               // Enable transparency for layering
         side: THREE.DoubleSide,          // Render both sides
@@ -201,15 +203,26 @@ export class SceneManager {
   }
 
   /**
+   * Elastic easing function for dramatic Shopify-style motion
+   */
+  private easeOutElastic(x: number): number {
+    const c4 = (2 * Math.PI) / 3;
+    return x === 0 ? 0 : x === 1 ? 1 : Math.pow(2, -10 * x) * Math.sin((x * 10 - 0.75) * c4) + 1;
+  }
+
+  /**
    * Update scene state (call this in RAF loop)
    */
   update(timeS: number, audio01: number): void {
     if (this.isDisposed) return;
 
-    // Smooth lerps for natural movement
+    // Dramatic spring physics for mouse movement (faster, more responsive)
+    const mouseLerpSpeed = 0.12; // Increased from 0.05 for snappier response
+    this.mouseCurrent.x = THREE.MathUtils.lerp(this.mouseCurrent.x, this.mouseTarget.x, mouseLerpSpeed);
+    this.mouseCurrent.y = THREE.MathUtils.lerp(this.mouseCurrent.y, this.mouseTarget.y, mouseLerpSpeed);
+    
+    // Slower, smooth lerp for scroll
     this.scrollCurrent = THREE.MathUtils.lerp(this.scrollCurrent, this.scrollTarget, 0.05);
-    this.mouseCurrent.x = THREE.MathUtils.lerp(this.mouseCurrent.x, this.mouseTarget.x, 0.05);
-    this.mouseCurrent.y = THREE.MathUtils.lerp(this.mouseCurrent.y, this.mouseTarget.y, 0.05);
 
     // Calculate scroll velocity for glitch effects
     this.scrollVelocity = Math.abs(this.scrollCurrent - this.scrollPrevious);
@@ -227,15 +240,37 @@ export class SceneManager {
     );
     this.camera.position.z = THREE.MathUtils.lerp(this.camera.position.z, targetZ, 0.05);
 
-    // Apply parallax motion to each layer based on their parallaxSpeed
+    // Apply dramatic 3D parallax motion to each layer
     this.planes.forEach((plane, index) => {
       const layer = this.config.texture.layers[index];
       
-      // Vertical parallax (scroll-based) - different speed per layer
+      // === VERTICAL PARALLAX (scroll-based) ===
+      // INVERSE parallax: background moves MORE than foreground
       plane.position.y = this.scrollCurrent * layer.parallaxSpeed * 2.0;
       
-      // Horizontal parallax (mouse-based) - different speed per layer
-      plane.position.x = this.mouseCurrent.x * layer.parallaxSpeed * 0.3;
+      // === HORIZONTAL PARALLAX (mouse X-axis) ===
+      // Dramatic movement range (3x increase)
+      plane.position.x = this.mouseCurrent.x * layer.parallaxSpeed * 1.0;
+      
+      // === NEW: VERTICAL MOUSE PARALLAX (mouse Y-axis) ===
+      // Add Y-axis mouse movement for true 3D depth
+      const mouseYOffset = this.mouseCurrent.y * layer.parallaxSpeed * 0.5;
+      plane.position.y += mouseYOffset;
+      
+      // === NEW: 3D ROTATION/TILT (Card Effect) ===
+      // Rotate planes based on mouse position for dramatic 3D tilt
+      const rotationX = -this.mouseCurrent.y * 0.2 * layer.rotationIntensity;
+      const rotationY = this.mouseCurrent.x * 0.2 * layer.rotationIntensity;
+      
+      // Apply rotation with spring-like smoothing
+      plane.rotation.x = THREE.MathUtils.lerp(plane.rotation.x, rotationX, 0.08);
+      plane.rotation.y = THREE.MathUtils.lerp(plane.rotation.y, rotationY, 0.08);
+      
+      // === NEW: DYNAMIC SCALE (Depth Enhancement) ===
+      // Subtle scale variation based on mouse distance from center
+      const mouseDist = Math.sqrt(this.mouseCurrent.x ** 2 + this.mouseCurrent.y ** 2);
+      const scaleVariation = 1.0 + (mouseDist * 0.03 * layer.rotationIntensity);
+      plane.scale.setScalar(THREE.MathUtils.lerp(plane.scale.x, scaleVariation, 0.08));
     });
 
     // Calculate chromatic aberration (scroll + velocity + audio)

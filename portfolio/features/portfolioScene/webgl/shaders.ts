@@ -45,6 +45,8 @@ export const fragmentShader = `
     // Effect parameters
     uniform float uChromaticAberration;
     uniform float uUVDistortion;
+    uniform float uBlurAmount;
+    uniform float uEdgeFade;
     
     varying vec2 vUv;
     varying vec3 vPosition;
@@ -89,16 +91,54 @@ export const fragmentShader = `
         vec2 distortion = vec2(noise1, noise2) * uUVDistortion;
         uv += distortion;
         
-        // Chromatic Aberration (elegant glitch)
-        float aberration = uChromaticAberration;
+        // === DEPTH-BASED BLUR (Gaussian) ===
+        vec3 color;
+        float alpha;
         
-        // Sample RGBA channels separately (preserve alpha for transparency)
-        vec4 texR = texture2D(uTexture, uv + vec2(aberration, 0.0));
-        vec4 texG = texture2D(uTexture, uv);
-        vec4 texB = texture2D(uTexture, uv - vec2(aberration, 0.0));
+        if (uBlurAmount > 0.01) {
+            // Multi-sample Gaussian blur for background depth
+            vec3 blurredColor = vec3(0.0);
+            float totalAlpha = 0.0;
+            float blurRadius = uBlurAmount * 0.003; // Blur radius
+            
+            // 9-tap Gaussian kernel (optimized for performance)
+            blurredColor += texture2D(uTexture, uv + vec2(-blurRadius, -blurRadius)).rgb * 0.075;
+            blurredColor += texture2D(uTexture, uv + vec2(0.0, -blurRadius)).rgb * 0.124;
+            blurredColor += texture2D(uTexture, uv + vec2(blurRadius, -blurRadius)).rgb * 0.075;
+            
+            blurredColor += texture2D(uTexture, uv + vec2(-blurRadius, 0.0)).rgb * 0.124;
+            vec4 centerSample = texture2D(uTexture, uv);
+            blurredColor += centerSample.rgb * 0.204;
+            blurredColor += texture2D(uTexture, uv + vec2(blurRadius, 0.0)).rgb * 0.124;
+            
+            blurredColor += texture2D(uTexture, uv + vec2(-blurRadius, blurRadius)).rgb * 0.075;
+            blurredColor += texture2D(uTexture, uv + vec2(0.0, blurRadius)).rgb * 0.124;
+            blurredColor += texture2D(uTexture, uv + vec2(blurRadius, blurRadius)).rgb * 0.075;
+            
+            color = blurredColor;
+            alpha = centerSample.a;
+        } else {
+            // Chromatic Aberration (elegant glitch) - only when no blur
+            float aberration = uChromaticAberration;
+            
+            vec4 texR = texture2D(uTexture, uv + vec2(aberration, 0.0));
+            vec4 texG = texture2D(uTexture, uv);
+            vec4 texB = texture2D(uTexture, uv - vec2(aberration, 0.0));
+            
+            color = vec3(texR.r, texG.g, texB.b);
+            alpha = texG.a;
+        }
         
-        vec3 color = vec3(texR.r, texG.g, texB.b);
-        float alpha = texG.a; // Use center sample for alpha
+        // === EDGE FADE / SOFT VIGNETTE ===
+        if (uEdgeFade > 0.01) {
+            // Distance from center for radial fade
+            vec2 centerDist = vUv - 0.5;
+            float distFromCenter = length(centerDist) * 2.0;
+            
+            // Smooth edge fade (soft vignette)
+            float edgeMask = 1.0 - smoothstep(1.0 - uEdgeFade, 1.0, distFromCenter);
+            alpha *= edgeMask;
+        }
         
         // Subtle vignette for cinematic feel
         vec2 vignetteUV = vUv * (1.0 - vUv.yx);
