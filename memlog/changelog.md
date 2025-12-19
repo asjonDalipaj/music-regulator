@@ -1,5 +1,21 @@
 # Changelog - Real-Time Music Regulator
 
+## [1.4.1] - 2025-12-19
+
+### Changed
+- **Portfolio Scrollbar - Restored Default System Scrollbar**:
+  - Removed custom WebKit scrollbar styling from `portfolio/app/globals.css`
+  - Removed burgundy/cream color scheme scrollbar customization
+  - Browser default scrollbar now appears on the right side of the screen
+  - Improves cross-browser consistency and accessibility
+  - Reduces custom styling complexity
+
+### Technical Details
+- Removed CSS rules: `::-webkit-scrollbar`, `::-webkit-scrollbar-track`, `::-webkit-scrollbar-thumb`, `::-webkit-scrollbar-thumb:hover`
+- System default scrollbar behavior now active across all browsers
+- Scrollbar position: Right side (browser default)
+- Maintains smooth scroll behavior (`scroll-behavior: smooth`)
+
 ## [1.4.0] - 2025-12-18
 
 ### Added
