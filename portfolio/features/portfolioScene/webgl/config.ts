@@ -91,9 +91,9 @@ export const sceneConfig: SceneConfig = {
         edgeFade: 0.2              // Soft edge fade to fix pixelation
       }
     ],
-    aspectRatio: 16 / 9,  // Landscape format
-    width: 6.0,           // Wide format for landscape
-    height: 3.375         // Maintains 16:9 ratio
+    aspectRatio: 1,       // Square format (1:1) to match 1024x1024 images
+    width: 6.0,           // Square dimensions
+    height: 6.0           // Maintains 1:1 ratio
   },
   effects: {
     chromaticAberration: {

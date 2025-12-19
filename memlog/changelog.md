@@ -1,5 +1,33 @@
 # Changelog - Real-Time Music Regulator
 
+## [1.4.2] - 2025-12-19
+
+### Fixed
+- **Portfolio Scene - Image Aspect Ratio Correction**:
+  - **Issue Identified**: Images appeared squashed/flattened on website
+    - Original source: `HeadphonesGirl2.png` (2048x2048 - square format)
+    - Processed layers: `headphones-girl-bg.png`, `headphones-girl-fg.png` (1024x1024 - square)
+    - WebGL config was set to 16:9 aspect ratio, causing distortion
+  
+  - **Solution Applied** (`webgl/config.ts`):
+    - Changed `aspectRatio` from `16 / 9` to `1` (square format)
+    - Changed `width` from `6.0` to `6.0` (maintained)
+    - Changed `height` from `3.375` to `6.0` (now matches width for 1:1 ratio)
+    - Images now render at correct proportions without squashing
+  
+  - **Format Preservation**:
+    - ✅ Original PNG format preserved (no conversion)
+    - ✅ Images loaded directly from `/public/img/` as PNG files
+    - ✅ Three.js converts to RGBA only in GPU memory for rendering
+    - ✅ Source files remain unchanged on disk
+    - ✅ 1024x1024 resolution maintained from original 2048x2048 source
+
+### Technical Details
+- Root cause: Aspect ratio mismatch between image dimensions (1:1) and rendering config (16:9)
+- Resolution: Updated config to match actual image aspect ratio
+- No image regeneration required - fix applied at rendering level
+- WebGL texture format (THREE.RGBAFormat) is optimal for PNG display
+
 ## [1.4.1] - 2025-12-19
 
 ### Changed
