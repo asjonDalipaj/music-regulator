@@ -224,7 +224,7 @@ export class SceneManager {
     // Slower, smooth lerp for scroll
     this.scrollCurrent = THREE.MathUtils.lerp(this.scrollCurrent, this.scrollTarget, 0.05);
 
-    // Calculate scroll velocity for glitch effects
+    // Track scroll velocity (disabled glitch effects but keeping for potential future use)
     this.scrollVelocity = Math.abs(this.scrollCurrent - this.scrollPrevious);
     this.scrollPrevious = this.scrollCurrent;
 
@@ -273,30 +273,9 @@ export class SceneManager {
       plane.scale.setScalar(THREE.MathUtils.lerp(plane.scale.x, scaleVariation, 0.08));
     });
 
-    // Calculate chromatic aberration (scroll + velocity + audio)
-    const scrollAberration = THREE.MathUtils.lerp(
-      this.config.effects.chromaticAberration.base,
-      this.config.effects.chromaticAberration.scrollMax,
-      scrollForCamera
-    );
-    
-    const velocityAberration = this.scrollVelocity > this.config.effects.scrollVelocity.threshold
-      ? this.scrollVelocity * this.config.effects.scrollVelocity.multiplier
-      : 0;
-    
-    const audioAberration = audio01 * this.config.effects.chromaticAberration.audioMax;
-    
-    const totalAberration = scrollAberration + velocityAberration + audioAberration;
-
-    // Calculate UV distortion (scroll + audio)
-    const scrollDistortion = THREE.MathUtils.lerp(
-      this.config.effects.uvDistortion.base,
-      this.config.effects.uvDistortion.scrollMax,
-      scrollForCamera
-    );
-    
-    const audioDistortion = audio01 * this.config.effects.uvDistortion.audioMax;
-    const totalDistortion = scrollDistortion + audioDistortion;
+    // Glitch effects disabled - set to zero
+    const totalAberration = 0;
+    const totalDistortion = 0;
 
     // Update shader uniforms for all layers
     this.materials.forEach((material) => {

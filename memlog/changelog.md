@@ -1,5 +1,36 @@
 # Changelog - Real-Time Music Regulator
 
+## [1.4.3] - 2025-12-27
+
+### Changed
+- **Portfolio Scene - Glitch Effects Removed**:
+  - **Shader Updates** (`webgl/shaders.ts`):
+    - Removed UV distortion (liquid ripple effect) from fragment shader
+    - Removed chromatic aberration (RGB channel splitting) 
+    - Simplified fragment shader to clean texture rendering
+    - Kept depth-based blur for background layer
+    - Maintained edge fade for smooth vignette
+  
+  - **SceneManager Updates** (`webgl/SceneManager.ts`):
+    - Disabled all glitch effect calculations
+    - Set `totalAberration = 0` and `totalDistortion = 0`
+    - Removed scroll velocity, audio, and scroll-based distortion calculations
+    - Shader uniforms still updated but with zero values
+    - Preserved scroll velocity tracking for potential future use
+
+### Technical Details
+- Clean parallax scrolling without visual artifacts
+- Background blur and foreground sharpness maintained
+- 3D rotation and mouse parallax effects preserved
+- All other visual features (vignette, audio accents) remain functional
+- Performance unchanged - shader simplification has minimal impact
+
+### Result
+- ✅ Smooth scrolling without glitchy distortions
+- ✅ Clean, professional visual presentation
+- ✅ Multi-layer parallax still fully functional
+- ✅ 3D depth effects (blur, rotation) preserved
+
 ## [1.4.2] - 2025-12-19
 
 ### Fixed

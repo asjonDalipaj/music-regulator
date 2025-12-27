@@ -84,13 +84,6 @@ export const fragmentShader = `
     void main() {
         vec2 uv = vUv;
         
-        // UV Distortion (liquid ripple effect)
-        float noise1 = snoise(uv * 3.0 + uTime * 0.2);
-        float noise2 = snoise(uv * 5.0 - uTime * 0.15);
-        
-        vec2 distortion = vec2(noise1, noise2) * uUVDistortion;
-        uv += distortion;
-        
         // === DEPTH-BASED BLUR (Gaussian) ===
         vec3 color;
         float alpha;
@@ -118,15 +111,10 @@ export const fragmentShader = `
             color = blurredColor;
             alpha = centerSample.a;
         } else {
-            // Chromatic Aberration (elegant glitch) - only when no blur
-            float aberration = uChromaticAberration;
-            
-            vec4 texR = texture2D(uTexture, uv + vec2(aberration, 0.0));
-            vec4 texG = texture2D(uTexture, uv);
-            vec4 texB = texture2D(uTexture, uv - vec2(aberration, 0.0));
-            
-            color = vec3(texR.r, texG.g, texB.b);
-            alpha = texG.a;
+            // No distortion or chromatic aberration - clean rendering
+            vec4 texSample = texture2D(uTexture, uv);
+            color = texSample.rgb;
+            alpha = texSample.a;
         }
         
         // === EDGE FADE / SOFT VIGNETTE ===
