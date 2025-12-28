@@ -1,5 +1,222 @@
 # Changelog - Real-Time Music Regulator
 
+## [1.5.3] - 2025-12-28
+
+### Enhanced
+- **Portfolio Scene - Starfield Visibility Improvements** (Enhanced Star Presence on Black Background):
+  - **Star Density Increase** (`StarfieldShader.ts`):
+    - Increased star spawn probability from 60% → 70% of cells (starHash threshold: 0.4 → 0.3)
+    - More stars visible across the entire starfield for richer space aesthetic
+  
+  - **Star Size Enhancement**:
+    - Increased star sizes for better visibility on pure black background
+    - Base size range: 0.001-0.004 → 0.003-0.011 units (3x larger)
+    - Glow radius: standard → 1.5x smoothstep multiplier
+    - Stars now more prominent and easier to see
+  
+  - **Brightness Boost**:
+    - Enhanced star brightness with 1.5x multiplier
+    - More pronounced twinkle effect (0.7-1.0 → 0.8-1.0 range)
+    - Stars stand out dramatically against black void
+  
+  - **Vignette Reduction**:
+    - Reduced vignette darkening from 0.6-1.0 → 0.85-1.0 range
+    - Adjusted smoothstep parameters (1.2, 0.3 → 1.5, 0.2) for softer edge fade
+    - Stars now visible across more of the viewport, not just center
+    - Better edge-to-edge starfield coverage
+  
+  - **Visual Result**:
+    - ✅ Denser starfield with 10% more stars
+    - ✅ Larger, more visible stars (especially on black background)
+    - ✅ Brighter, more dramatic star presence
+    - ✅ Reduced vignette allows stars to shine at edges
+    - ✅ Enhanced glow creates depth and atmosphere
+    - ✅ Maintains all audio reactivity and shooting star effects
+
+### Technical Details
+- Star layer algorithm updated across all 4 density scales (15, 40, 80, 150)
+- Consistent improvements applied to all star size calculations
+- Vignette calculation optimized for better edge visibility
+- All color variations (blue-white, pure white, yellow-white, cyan, pink, purple) preserved
+- Performance unchanged - same computational complexity
+
+### User Experience
+- More immersive space environment with visible stars throughout viewport
+- Black background now properly showcases the starfield
+- Enhanced depth perception through brighter, larger stars
+- Better visual balance between background and foreground layers
+- Professional deep-space aesthetic maintained
+
+## [1.5.2] - 2025-12-28
+
+### Changed
+- **Portfolio Scene - Pure Black Background** (Starfield Background Update):
+  - **Nebula Removal** (`StarfieldShader.ts`):
+    - Removed blue-tinted nebula clouds entirely for pure black space
+    - Changed background from colorful nebula (purple/blue/pink) to `vec3(0.0, 0.0, 0.0)`
+    - Reduced audio-reactive glow intensity from 0.4 → 0.05 (barely visible)
+    - Stars now appear on true black background instead of blue-tinted nebula
+  
+  - **Visual Result**:
+    - ✅ Pure black background replacing previous blue-tinted appearance
+    - ✅ Stars stand out more dramatically against black void
+    - ✅ Optional subtle audio glow preserved (much dimmer)
+    - ✅ Maintains all star layers, shooting stars, and audio reactivity
+    - ✅ Cleaner, more focused space aesthetic
+
+### Technical Details
+- Removed fractal Brownian motion (FBM) nebula color calculations
+- Removed audio-reactive nebula intensity multiplier
+- Removed colorful nebula layers (purple, blue, magenta)
+- Kept optional audio glow layer but at 12.5% of original intensity
+- Stars, shooting stars, and vignette effects unchanged
+
+### User Experience
+- Dramatic shift from colorful nebula to stark black space
+- Stars appear more vivid and prominent
+- Cleaner, more minimalist aesthetic
+- Audio reactivity still present but much subtler
+- Professional deep-space appearance
+
+## [1.5.1] - 2025-12-28
+
+### Enhanced
+- **Portfolio Scene - Starfield Visibility Fix** (Full Viewport Background):
+  - **Plane Size Expansion** (`SceneManager.ts`):
+    - Starfield plane increased from 6x6 to 30x30 units
+    - Ensures full viewport coverage at all camera zoom levels
+    - Character layers remain at 6x6 for proper framing
+    - Conditional geometry sizing: `isStarfield` check determines dimensions
+  
+  - **Depth Positioning** (`config.ts`):
+    - Starfield z-position moved from -1.0 → -3.0
+    - Creates greater depth separation from background layer (-0.5)
+    - Enhanced parallax speed from 2.0 → 2.5 for dramatic depth effect
+    - Positions starfield as true "universe backdrop" behind all elements
+  
+  - **Visual Result**:
+    - ✅ Starfield now fills entire viewport (no black scene background visible)
+    - ✅ Extended black space background covers full site area
+    - ✅ Universe simulation properly positioned as deepest layer
+    - ✅ Maintains proper z-ordering: starfield (-3.0) → bg (-0.5) → fg (0.0)
+    - ✅ Camera zoom (3.5 → 8.0) never reveals background edges
+
+### Technical Implementation
+- Dynamic plane size calculation in `createPlanes()` method
+- Size determined at plane creation based on layer path identifier
+- 30x30 unit plane provides 5x coverage compared to character images
+- Accounts for camera FOV (40°) and zoom range for edge-to-edge fill
+- No performance impact - single large plane vs multiple small planes
+
+### User Experience
+- Full-screen starfield background creates immersive space environment
+- No visual gaps or black borders during scroll/zoom
+- Seamless universe backdrop enhances music therapy theme
+- Character layers appear to float in actual space
+- Professional, polished visual presentation
+
+## [1.5.0] - 2025-12-28
+
+### Added
+- **Portfolio Scene - WebGL Starfield Background**:
+  - **StarfieldShader.ts** - New procedural starfield shader system
+    - Dense, dramatic, colorful universe simulation
+    - 4 star layers with varying densities (15, 40, 80, 150 scale)
+    - Multi-color stars: blue-white, pure white, yellow-white, cyan, pink, purple
+    - Procedural nebula clouds with fractal Brownian motion (FBM)
+    - Subtle twinkling animation (0.7-1.0 intensity range)
+    - Shooting stars appearing intermittently (3 concurrent trails)
+    - Parallax response to mouse movement (0.02 intensity)
+    - Radial vignette for cinematic depth focus
+  
+  - **Integration** (`config.ts`):
+    - Added starfield as first layer (deepest z-position: -2.0)
+    - Special identifier `path: 'starfield'` for procedural rendering
+    - No texture loading required (GPU-generated)
+    - Positioned behind all existing image layers
+  
+  - **SceneManager Updates**:
+    - Conditional shader creation for starfield vs texture layers
+    - Starfield shader receives `uTime`, `uScroll`, `uMouse`, `uResolution`
+    - Separate uniform update logic for starfield and texture layers
+    - Skips texture loading for procedural starfield layer
+
+### Enhanced
+- **Foreground Edge Smoothing** (Fix for Pixelated Contours):
+  - **Config Changes**:
+    - Increased `edgeFade` from 0.2 → 0.5 for headphones-girl-fg.png
+    - Enhanced edge smoothing for cleaner silhouette
+  
+  - **Texture Filtering** (`SceneManager.ts`):
+    - Added high-quality mipmap filtering: `THREE.LinearMipMapLinearFilter`
+    - Enabled anisotropic filtering at maximum supported level
+    - Automatic mipmap generation for smooth scaling
+    - Improved texture quality at all viewing angles
+  
+  - **Shader Algorithm Enhancement** (`shaders.ts`):
+    - Multi-directional edge fade (horizontal, vertical, radial)
+    - Weighted average combining: 40% horizontal + 40% vertical + 20% radial
+    - Double smoothstep application for ultra-smooth anti-aliasing
+    - Eliminates pixelated edges on transparent PNG boundaries
+
+### Technical Implementation
+- **Starfield Features**:
+  - Hash-based pseudo-random star placement (consistent, deterministic)
+  - 3x3 grid sampling prevents edge artifacts
+  - ~60% cell occupancy for dense dramatic starfield
+  - Variable star sizes (0.001-0.004 units)
+  - Shooting star trajectories with random angles and positions
+  - Trail intensity fade over 3-second duration
+  - Nebula layers with purple, deep blue, magenta gradients
+  
+- **Performance Optimizations**:
+  - Efficient 2D noise functions (hash-based, no texture lookups)
+  - Starfield rendered as single plane (no particle overhead)
+  - Conditional shader branching for starfield vs texture layers
+  - GPU-optimized procedural generation
+  
+- **Visual Results**:
+  - ✅ Dense, colorful starfield with dramatic nebula clouds
+  - ✅ Subtle twinkling maintains calm atmosphere
+  - ✅ Shooting stars add dynamic interest every ~30 seconds
+  - ✅ Smooth foreground edges eliminate pixelation
+  - ✅ High-quality texture filtering at all angles
+  - ✅ Multi-layer depth: starfield → background → foreground
+
+### User Experience
+- Universe-themed background replaces static black
+- Dramatic space aesthetic with colorful stars (cyan/pink/purple accents)
+- Shooting stars create occasional visual surprise
+- Smooth, professional foreground silhouette
+- Parallax depth maintained across all 3 layers
+- Cohesive cinematic space/music theme
+
+### Audio Reactivity (Enhancement)
+- **Nebula Animation**:
+  - Audio creates wave distortion across nebula clouds
+  - Intensity multiplier: 1.0x base → 2.5x peak (on audio)
+  - Electric glow layer (cyan/pink) pulses with audio
+  - Glow alternates between cyan and pink (2-second cycle)
+  - FBM-based glow pattern for organic pulses
+  
+- **Star Behavior**:
+  - Twinkle speed increases 1x → 4x with audio
+  - Star brightness boost: 1.0x → 1.5x on audio peaks
+  - All star layers react simultaneously for dramatic effect
+  
+- **Technical Implementation**:
+  - `uAudio` uniform (0.0-1.0) driven by AudioManager frequency analysis
+  - Smooth lerp interpolation (0.1 speed) prevents jarring transitions
+  - Shader-based audio visualization (GPU-optimized)
+  - Inspired by Shadertoy nebula effects with custom audio integration
+  
+- **Visual Impact**:
+  - ✅ Dramatic nebula pulses on music beats
+  - ✅ Stars twinkle faster creating energy response
+  - ✅ Cyan/pink electric glow adds modern aesthetic
+  - ✅ Smooth audio transitions maintain calm base state
+  - ✅ Universe feels alive and reactive to music
+
 ## [1.4.3] - 2025-12-27
 
 ### Changed

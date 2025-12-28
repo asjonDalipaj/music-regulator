@@ -73,6 +73,15 @@ export const sceneConfig: SceneConfig = {
   texture: {
     layers: [
       {
+        path: 'starfield',         // Special identifier for procedural starfield
+        parallaxSpeed: 3,        // Moves more for depth
+        zPosition: -2.0,           // Far back behind everything (extended depth)
+        disableDistortion: true,   
+        rotationIntensity: 0.2,    // No rotation for starfield
+        blurAmount: 0.0,           
+        edgeFade: 0.0              
+      },
+      {
         path: '/img/headphones-girl-bg.png',  // Background layer (window)
         parallaxSpeed: 1.5,        // INVERSE parallax - moves MORE (dramatic depth)
         zPosition: -0.5,           // Positioned behind foreground
@@ -88,7 +97,7 @@ export const sceneConfig: SceneConfig = {
         disableDistortion: true,   // No distortion for clean multi-layer effect
         rotationIntensity: 0.3,    // Subtle rotation (closer = less rotation)
         blurAmount: 0.0,           // Sharp/clear (closest layer)
-        edgeFade: 0.2              // Soft edge fade to fix pixelation
+        edgeFade: 0.5              // Increased edge fade to smooth pixelated edges
       }
     ],
     aspectRatio: 1,       // Square format (1:1) to match 1024x1024 images

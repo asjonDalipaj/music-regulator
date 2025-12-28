@@ -7,6 +7,7 @@
 import * as THREE from 'three';
 import { SceneConfig } from './config';
 import { vertexShader, fragmentShader } from './shaders';
+import { starfieldVertexShader, starfieldFragmentShader } from './StarfieldShader';
 import { MousePosition } from './types';
 
 export class SceneManager {
@@ -69,6 +70,12 @@ export class SceneManager {
    */
   private loadTextures(): void {
     this.config.texture.layers.forEach((layer, index) => {
+      // Skip texture loading for starfield (procedural)
+      if (layer.path === 'starfield') {
+        console.log(`✅ Layer ${index} using procedural starfield`);
+        return;
+      }
+      
       this.textureLoader.load(
         layer.path,
         (texture) => {
@@ -76,10 +83,19 @@ export class SceneManager {
           texture.format = THREE.RGBAFormat;
           texture.needsUpdate = true;
           
+          // Add high-quality texture filtering for smooth edges
+          texture.minFilter = THREE.LinearMipMapLinearFilter;
+          texture.magFilter = THREE.LinearFilter;
+          texture.generateMipmaps = true;
+          
+          // Enable anisotropic filtering for better quality at angles
+          const maxAnisotropy = this.renderer.capabilities.getMaxAnisotropy();
+          texture.anisotropy = maxAnisotropy;
+          
           this.textures[index] = texture;
           this.materials[index].uniforms.uTexture.value = texture;
           this.materials[index].needsUpdate = true;
-          console.log(`✅ Layer ${index} texture loaded:`, layer.path);
+          console.log(`✅ Layer ${index} texture loaded with filtering:`, layer.path);
         },
         undefined,
         (error) => {
@@ -127,35 +143,63 @@ export class SceneManager {
    */
   private createPlanes(): void {
     this.config.texture.layers.forEach((layer, index) => {
+      // Starfield needs much larger geometry to fill entire viewport
+      const isStarfield = layer.path === 'starfield';
+      const planeWidth = isStarfield ? 30 : this.config.texture.width;
+      const planeHeight = isStarfield ? 30 : this.config.texture.height;
+      
       const geometry = new THREE.PlaneGeometry(
-        this.config.texture.width,
-        this.config.texture.height,
+        planeWidth,
+        planeHeight,
         32,  // Width segments for smooth distortion
         32   // Height segments
       );
 
-      const material = new THREE.ShaderMaterial({
-        vertexShader,
-        fragmentShader,
-        uniforms: {
-          uTime: { value: 0 },
-          uScroll: { value: 0 },
-          uAudio: { value: 0 },
-          uScrollVelocity: { value: 0 },
-          uTexture: { value: null }, // Will be set when texture loads
-          uColorA: { value: new THREE.Color(this.config.colors.accentA) },
-          uColorB: { value: new THREE.Color(this.config.colors.accentB) },
-          uChromaticAberration: { value: this.config.effects.chromaticAberration.base },
-          uUVDistortion: { value: this.config.effects.uvDistortion.base },
-          uBlurAmount: { value: layer.blurAmount },
-          uEdgeFade: { value: layer.edgeFade },
-        },
-        transparent: true,               // Enable transparency for layering
-        side: THREE.DoubleSide,          // Render both sides
-        depthWrite: false,               // Prevent z-fighting between layers
-        depthTest: true,                 // Enable depth testing for proper layering
-        blending: THREE.NormalBlending,  // Use normal alpha blending
-      });
+      let material: THREE.ShaderMaterial;
+      
+      // Check if this is the starfield layer
+      if (isStarfield) {
+        // Create starfield shader material
+        material = new THREE.ShaderMaterial({
+          vertexShader: starfieldVertexShader,
+          fragmentShader: starfieldFragmentShader,
+          uniforms: {
+            uTime: { value: 0 },
+            uScroll: { value: 0 },
+            uMouse: { value: new THREE.Vector2(0, 0) },
+            uResolution: { value: new THREE.Vector2(window.innerWidth, window.innerHeight) },
+            uAudio: { value: 0 },
+          },
+          transparent: false,
+          side: THREE.DoubleSide,
+          depthWrite: true,
+          depthTest: true,
+        });
+      } else {
+        // Create standard texture shader material
+        material = new THREE.ShaderMaterial({
+          vertexShader,
+          fragmentShader,
+          uniforms: {
+            uTime: { value: 0 },
+            uScroll: { value: 0 },
+            uAudio: { value: 0 },
+            uScrollVelocity: { value: 0 },
+            uTexture: { value: null }, // Will be set when texture loads
+            uColorA: { value: new THREE.Color(this.config.colors.accentA) },
+            uColorB: { value: new THREE.Color(this.config.colors.accentB) },
+            uChromaticAberration: { value: this.config.effects.chromaticAberration.base },
+            uUVDistortion: { value: this.config.effects.uvDistortion.base },
+            uBlurAmount: { value: layer.blurAmount },
+            uEdgeFade: { value: layer.edgeFade },
+          },
+          transparent: true,               // Enable transparency for layering
+          side: THREE.DoubleSide,          // Render both sides
+          depthWrite: false,               // Prevent z-fighting between layers
+          depthTest: true,                 // Enable depth testing for proper layering
+          blending: THREE.NormalBlending,  // Use normal alpha blending
+        });
+      }
 
       const plane = new THREE.Mesh(geometry, material);
       
@@ -278,17 +322,33 @@ export class SceneManager {
     const totalDistortion = 0;
 
     // Update shader uniforms for all layers
-    this.materials.forEach((material) => {
+    this.materials.forEach((material, index) => {
+      const layer = this.config.texture.layers[index];
+      
+      // Update common uniforms
       material.uniforms.uTime.value = timeS;
       material.uniforms.uScroll.value = this.scrollCurrent;
-      material.uniforms.uScrollVelocity.value = this.scrollVelocity;
-      material.uniforms.uAudio.value = THREE.MathUtils.lerp(
-        material.uniforms.uAudio.value,
-        audio01,
-        0.1
-      );
-      material.uniforms.uChromaticAberration.value = totalAberration;
-      material.uniforms.uUVDistortion.value = totalDistortion;
+      
+      // Starfield-specific uniforms
+      if (layer.path === 'starfield') {
+        material.uniforms.uMouse.value.set(this.mouseCurrent.x, this.mouseCurrent.y);
+        material.uniforms.uAudio.value = THREE.MathUtils.lerp(
+          material.uniforms.uAudio.value,
+          audio01,
+          0.1
+        );
+      }
+      // Standard texture layer uniforms
+      else {
+        material.uniforms.uScrollVelocity.value = this.scrollVelocity;
+        material.uniforms.uAudio.value = THREE.MathUtils.lerp(
+          material.uniforms.uAudio.value,
+          audio01,
+          0.1
+        );
+        material.uniforms.uChromaticAberration.value = totalAberration;
+        material.uniforms.uUVDistortion.value = totalDistortion;
+      }
     });
   }
 

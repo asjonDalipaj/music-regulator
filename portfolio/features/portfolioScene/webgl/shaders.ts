@@ -119,12 +119,25 @@ export const fragmentShader = `
         
         // === EDGE FADE / SOFT VIGNETTE ===
         if (uEdgeFade > 0.01) {
-            // Distance from center for radial fade
-            vec2 centerDist = vUv - 0.5;
-            float distFromCenter = length(centerDist) * 2.0;
+            // Multi-directional edge fade for smoother pixelation removal
+            vec2 edgeDist = abs(vUv - 0.5) * 2.0;
             
-            // Smooth edge fade (soft vignette)
-            float edgeMask = 1.0 - smoothstep(1.0 - uEdgeFade, 1.0, distFromCenter);
+            // Horizontal edge fade
+            float horizontalFade = 1.0 - smoothstep(1.0 - uEdgeFade, 1.0, edgeDist.x);
+            
+            // Vertical edge fade
+            float verticalFade = 1.0 - smoothstep(1.0 - uEdgeFade, 1.0, edgeDist.y);
+            
+            // Radial fade from center
+            float distFromCenter = length(vUv - 0.5) * 2.0;
+            float radialFade = 1.0 - smoothstep(1.0 - uEdgeFade * 0.8, 1.0, distFromCenter);
+            
+            // Combine all fades with weighted average for ultra-smooth edges
+            float edgeMask = (horizontalFade * 0.4 + verticalFade * 0.4 + radialFade * 0.2);
+            
+            // Apply smooth fade curve for anti-aliasing effect
+            edgeMask = smoothstep(0.0, 1.0, edgeMask);
+            
             alpha *= edgeMask;
         }
         
